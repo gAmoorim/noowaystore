@@ -1,0 +1,168 @@
+Documentação de Rotas e Controllers
+
+🔹 Usuários
+
+controllerCadastrarUsuario (POST /usuarios)
+º Body: nome, email, senha
+º Valida campos obrigatórios
+º Valida formato do email
+º Senha com pelo menos 6 caracteres
+º Verifica se email já está cadastrado
+º Criptografa senha com bcrypt
+º Cria usuário no banco com role = 'cliente'
+º Retorna: 201 Created + (id, nome, email, role)
+
+controllerLoginUsuario (POST /login)
+º Body: email, senha
+º Valida campos obrigatórios
+º Verifica se email existe
+º Compara senha com bcrypt
+º Gera token JWT
+º Retorna: 200 OK + (token, usuário)
+
+controllerObterUsuario (GET /usuarios/:id)
+º Valida se usuário existe
+º Retorna: 200 OK + dados do usuário
+
+controllerListarUsuarios (GET /usuarios) [admin]
+º Verifica role=admin
+º Retorna lista completa de usuários
+º Retorna: 200 OK
+
+🔹 Categorias
+controllerCadastrarCategoria (POST /categorias)
+
+º Body: nome
+º Valida nome obrigatório
+º Verifica se categoria já existe
+º Cria categoria no banco
+º Retorna: 201 Created + (id, nome)
+
+controllerListarCategorias (GET /categorias)
+
+º Retorna: 200 OK com todas as categorias
+
+🔹 Produtos
+controllerCadastrarProduto (POST /produtos)
+
+º Body: nome, descricao, preco, categoria_id, disponivel
+º Valida nome, preco e categoria obrigatórios
+º Preço deve ser maior que 0
+º Verifica se categoria_id existe
+º Cria produto no banco
+º Retorna: 201 Created + (id, nome, preco, categoria_id, disponivel)
+
+controllerListarProdutos (GET /produtos)
+
+º Aceita filtros opcionais: categoria_id, disponivel
+º Retorna lista de produtos
+º Retorna: 200 OK
+
+controllerObterProduto (GET /produtos/:id)
+
+º Valida se produto existe
+º Retorna detalhes do produto, imagens e estoque
+º Retorna: 200 OK
+
+controllerAtualizarProduto (PUT /produtos/:id)
+
+º Body: nome, descricao, preco, categoria_id, disponivel
+º Valida campos obrigatórios
+º Verifica se categoria existe
+º Atualiza produto no banco
+º Retorna: 200 OK
+
+controllerDesativarProduto (DELETE /produtos/:id)
+
+º Marca produto como disponivel = false
+º Não deleta do banco
+º Retorna: 204 No Content
+
+🔹 Imagens dos Produtos
+controllerCadastrarImagem (POST /produtos/:id/imagens)
+
+º Body: url
+º Valida url obrigatória
+º Verifica se produto existe
+º Salva imagem no banco
+º Retorna: 201 Created
+
+controllerListarImagens (GET /produtos/:id/imagens)
+
+º Retorna lista de URLs de imagens
+º Retorna: 200 OK
+
+🔹 Estoque (Tamanho + Cor)
+controllerAdicionarEstoque (POST /estoque)
+
+º Body: produto_id, tamanho, cor, quantidade
+º Valida campos obrigatórios
+º quantidade ≥ 0
+º Verifica se produto existe
+º Cria variação de estoque
+º Retorna: 201 Created + (id, produto_id, tamanho, cor, quantidade)
+
+controllerAtualizarEstoque (PUT /estoque/:id)
+
+º Body: tamanho, cor, quantidade
+º Valida campos
+º Atualiza variação no banco
+º Retorna: 200 OK
+
+controllerListarEstoquePorProduto (GET /produtos/:id/estoque)
+
+º Valida se produto existe
+º Retorna todas as variações (tamanho/cor)
+º Retorna: 200 OK
+
+🔹 Endereços
+controllerCadastrarEndereco (POST /enderecos)
+
+º Body: usuario_id, rua, numero, cidade, estado, cep
+º Valida todos os campos obrigatórios
+º Verifica se usuário existe
+º Cria endereço no banco
+º Retorna: 201 Created
+
+controllerListarEnderecos (GET /usuarios/:id/enderecos)
+
+º Valida se usuário existe
+º Retorna endereços do usuário
+º Retorna: 200 OK
+
+🔹 Pedidos
+controllerCriarPedido (POST /pedidos)
+
+º Body: itens: [ { estoque_id, quantidade } ]
+º Valida lista de itens obrigatória
+º Valida se estoque existe
+º quantidade ≤ estoque atual
+º Calcula total do pedido
+º Cria pedido no banco
+º Insere itens do pedido
+º Atualiza estoque (subtrai quantidade)
+º Retorna: 201 Created + pedido completo
+
+controllerListarPedidos (GET /pedidos)
+
+º Se usuário é cliente → retorna apenas pedidos dele
+º Se admin → retorna todos os pedidos
+º Retorna: 200 OK
+
+controllerObterPedido (GET /pedidos/:id)
+
+º Valida se pedido existe
+º Retorna pedido + itens + valores
+º Retorna: 200 OK
+
+controllerAtualizarStatusPedido (PATCH /pedidos/:id/status)
+
+º Body: status (pendente, pago, enviado, cancelado)
+º Valida status permitido
+º Atualiza no banco
+º Retorna: 200 OK
+
+controllerListarItensDoPedido (GET /pedidos/:id/itens)
+
+º Valida se pedido existe
+º Retorna: 200 OK + itens do pedido
