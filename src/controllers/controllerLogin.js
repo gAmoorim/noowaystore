@@ -3,12 +3,11 @@ const bcrypt = require('bcrypt')
 const senhaJWT = process.env.JWT_PWD
 const { queryBuscarUsuarioPeloEmail } = require('../database/querys/queryUsuarios')
 
-const controllerLoginUsuario = async (req, res) => {
+const controllerLoginUsuario = async (req,res) => {
     const { email, senha } = req.body
-
     
-    if (!email || !senha ) {
-        return res.status(400).json({ error: 'preencha email e senha'})
+    if (!email || !senha) {
+        return res.status(400).json({ error: 'Preencha os campos necessários'})
     }
 
     try {
@@ -18,17 +17,20 @@ const controllerLoginUsuario = async (req, res) => {
             return res.status(400).json({ error: 'email ou senha incorreto'})
         }
 
-        const senhaCorreta = await bcrypt.compare(senha, usuario.senha)
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash)
 
         if (!senhaCorreta) {
-            return res.status(400).json({ error: 'email ou senha incorreta'})
+            return res.status(400).json({ error: 'email ou senha incorreto'})
+        }
+        
+        const dadosTokenUsuario = {
+            id: usuario.id,
+            nome: usuario.nome
         }
 
-        const dadosTokenUsuario = { id: usuario.id, nome: usuario.nome}
-
-        const token = jwt.sign(dadosTokenUsuario, senhaJWT, {expiresIn: '2h'})
-        const { senha: _, ...dadosUsuario} = usuario
-
+        const token = jwt.sign(dadosTokenUsuario, senhaJWT, { expiresIn: '3h' })
+        const {senha: _, ...dadosUsuario} = usuario
+        
         return res.status(200).json({
             usuario: dadosUsuario,
             token
@@ -37,4 +39,8 @@ const controllerLoginUsuario = async (req, res) => {
         console.error("Ocorreu um erro ao realizar o Login:", error)
         return res.status(500).json({ error: `Erro ao realizar o Login: ${error.message}`})
     }
+}
+
+module.exports = {
+    controllerLoginUsuario
 }

@@ -1,168 +1,243 @@
 Documentação de Rotas e Controllers
 
-🔹 Usuários
+🔹 Usuarios
 
 controllerCadastrarUsuario (POST /usuarios)
-º Body: nome, email, senha
-º Valida campos obrigatórios
-º Valida formato do email
-º Senha com pelo menos 6 caracteres
-º Verifica se email já está cadastrado
-º Criptografa senha com bcrypt
-º Cria usuário no banco com role = 'cliente'
-º Retorna: 201 Created + (id, nome, email, role)
+# - Body: nome, email, senha, telefone (opcional)
+# - Validar campos obrigatórios
+# - Validar formato de email
+# - Senha com pelo menos 6 chars
+# - Verificar se email já existe
+# - Criptografar senha com bcrypt
+# - Retornar 201 + (id, nome, email, tipo)
 
-controllerLoginUsuario (POST /login)
-º Body: email, senha
-º Valida campos obrigatórios
-º Verifica se email existe
-º Compara senha com bcrypt
-º Gera token JWT
-º Retorna: 200 OK + (token, usuário)
+controllerLogin (POST /login)
+# - Body: email, senha
+# - Validar campos obrigatórios
+# - Verificar se email existe
+# - Comparar senha com bcrypt
+# - Gerar token JWT com: id, nome, tipo
+# - Retornar 200 + token + dados do usuário
+
+controllerListarUsuarios (GET /usuarios) (Restrito a administradores)
+# - Verificar se usuário logado é admin
+# - Buscar todos os usuários (exceto senha_hash)
+# - Retornar 200 + lista
+# - Erros: 403 (não admin)
 
 controllerObterUsuario (GET /usuarios/:id)
-º Valida se usuário existe
-º Retorna: 200 OK + dados do usuário
+    # - receber id do usuario no params
+    # - Requer autenticação
+    # - Usuário acessa apenas o próprio perfil
+    # - Administrador acessa qualquer usuário
+    # - Busca usuario por ID
+    # - retorna: 200 OK + dados do usuário
 
-controllerListarUsuarios (GET /usuarios) [admin]
-º Verifica role=admin
-º Retorna lista completa de usuários
-º Retorna: 200 OK
+controllerAtualizarUsuario (PUT /usuarios)
+    # Body: nome, email, senha, telefone (opcional)
+    # Requer autenticação
+    # se senha enviada: recriptografar
+    # se email enviado: verificar se já existe
+    # Usuário atualiza apenas o próprio
+    # atualiza dados
+    # retorna: 204 No Content ou 200 OK
 
-🔹 Categorias
-controllerCadastrarCategoria (POST /categorias)
+controllerDeletarUsuario (DELETE /usuarios/:id)
+    # Requer autenticação
+    # Remove usuário
+    # Retorna: 204 No Content
 
-º Body: nome
-º Valida nome obrigatório
-º Verifica se categoria já existe
-º Cria categoria no banco
-º Retorna: 201 Created + (id, nome)
+🔹 CATEGORIAS
+
+controllerCriarCategoria (POST /categorias)
+# - Verificar se usuário logado é admin
+# - Body: nome
+# - Validar se nome foi informado
+# - Verificar se categoria já existe
+# - Inserir categoria
+# - Retornar 201 + categoria criada
 
 controllerListarCategorias (GET /categorias)
+# - Sem autenticação
+# - Buscar todas
+# - Retornar 200 + lista
 
-º Retorna: 200 OK com todas as categorias
+controllerDeletarCategoria (DELETE /categorias/:id)
+# - Verificar se usuário logado é admin
+# - Buscar / Verificar se categoria existe
+# - Deletar categoria
+# - Retornar 204
 
-🔹 Produtos
-controllerCadastrarProduto (POST /produtos)
+🔹 PRODUTOS
 
-º Body: nome, descricao, preco, categoria_id, disponivel
-º Valida nome, preco e categoria obrigatórios
-º Preço deve ser maior que 0
-º Verifica se categoria_id existe
-º Cria produto no banco
-º Retorna: 201 Created + (id, nome, preco, categoria_id, disponivel)
+controllerCriarProduto (POST /produtos)
+# - Verificar se usuário logado é admin
+# - Body: nome, descricao, preco, categoria_id, disponivel (default true)
+# - Validar campos obrigatórios (nome, preco)
+# - Validar categoria existente (se informado)
+# - Criar produto
+# - Retornar 201 + produto
 
 controllerListarProdutos (GET /produtos)
+# - Listar produtos (com categoria, imagens, estoque)
+# - Suporta filtros: nome, preco_min, preco_max, categoria_id, disponivel
+# - Retornar 200
 
-º Aceita filtros opcionais: categoria_id, disponivel
-º Retorna lista de produtos
-º Retorna: 200 OK
-
-controllerObterProduto (GET /produtos/:id)
-
-º Valida se produto existe
-º Retorna detalhes do produto, imagens e estoque
-º Retorna: 200 OK
+controllerBuscarProduto (GET /produtos/:id)
+# - Buscar produto pelo id
+# - Incluir imagens, estoque, categorias
+# - Retornar 200
 
 controllerAtualizarProduto (PUT /produtos/:id)
+# - Verificar se usuário logado é admin
+# - Validar dados enviados ( nome, descricao, preco, disponivel)
+# - Verificar se produto existe
+# - Atualizar campos enviados
+# - Retornar 200 + produto atualizado
 
-º Body: nome, descricao, preco, categoria_id, disponivel
-º Valida campos obrigatórios
-º Verifica se categoria existe
-º Atualiza produto no banco
-º Retorna: 200 OK
+controllerDeletarProduto (DELETE /produtos/:id)
+# - Verificar se usuário logado é admin
+# - Verificar se produto existe
+# - Deletar produto
+# - Retornar 204
 
-controllerDesativarProduto (DELETE /produtos/:id)
+🔹 ESTOQUE
 
-º Marca produto como disponivel = false
-º Não deleta do banco
-º Retorna: 204 No Content
+controllerCriarEstoque (POST /estoque)
+# - Verificar se usuário logado é admin
+# - Body: produto_id, tamanho, cor, quantidade
+# - Validar campos
+# - Verificar se produto existe
+# - Inserir registro no estoque
+# - Retornar 201 + item estoque
 
-🔹 Imagens dos Produtos
-controllerCadastrarImagem (POST /produtos/:id/imagens)
-
-º Body: url
-º Valida url obrigatória
-º Verifica se produto existe
-º Salva imagem no banco
-º Retorna: 201 Created
-
-controllerListarImagens (GET /produtos/:id/imagens)
-
-º Retorna lista de URLs de imagens
-º Retorna: 200 OK
-
-🔹 Estoque (Tamanho + Cor)
-controllerAdicionarEstoque (POST /estoque)
-
-º Body: produto_id, tamanho, cor, quantidade
-º Valida campos obrigatórios
-º quantidade ≥ 0
-º Verifica se produto existe
-º Cria variação de estoque
-º Retorna: 201 Created + (id, produto_id, tamanho, cor, quantidade)
+controllerListarEstoque (GET/ estoque)
+# - Verificar se usuário logado é admin
+# - Listar estoque (produto_id, tamanho, cor, quntidade)
+# - Retornar 200
 
 controllerAtualizarEstoque (PUT /estoque/:id)
+# - Verificar se usuário logado é admin
+# - Validar quantidade >= 0
+# - Verificar se estoque existe
+# - Atualizar
+# - Retornar 200
 
-º Body: tamanho, cor, quantidade
-º Valida campos
-º Atualiza variação no banco
-º Retorna: 200 OK
+🔹  PEDIDOS
 
-controllerListarEstoquePorProduto (GET /produtos/:id/estoque)
-
-º Valida se produto existe
-º Retorna todas as variações (tamanho/cor)
-º Retorna: 200 OK
-
-🔹 Endereços
-controllerCadastrarEndereco (POST /enderecos)
-
-º Body: usuario_id, rua, numero, cidade, estado, cep
-º Valida todos os campos obrigatórios
-º Verifica se usuário existe
-º Cria endereço no banco
-º Retorna: 201 Created
-
-controllerListarEnderecos (GET /usuarios/:id/enderecos)
-
-º Valida se usuário existe
-º Retorna endereços do usuário
-º Retorna: 200 OK
-
-🔹 Pedidos
 controllerCriarPedido (POST /pedidos)
+# - Verificar autenticacao
+# - Body: itens = [{ estoque_id, quantidade }] (array)
+# - verificar se cada item existe no estoque
+# - Verificar se quantidade solicitada ≤ disponível
+# - Criar pedido com status = 'pendente'
+# - Criar itens_pedido com preco_unitario = preco do produto
+# - Atualizar estoque (quantidade -= quantidade)
+# - Retornar 201 + pedido completo
 
-º Body: itens: [ { estoque_id, quantidade } ]
-º Valida lista de itens obrigatória
-º Valida se estoque existe
-º quantidade ≤ estoque atual
-º Calcula total do pedido
-º Cria pedido no banco
-º Insere itens do pedido
-º Atualiza estoque (subtrai quantidade)
-º Retorna: 201 Created + pedido completo
+controllerListarPedidosUsuario (GET /pedidos/minha-conta)
+# - Verificar se usuário esta logado
+# - Buscar pedidos do usuário logado
+# - Retornar 200 + lista
 
-controllerListarPedidos (GET /pedidos)
-
-º Se usuário é cliente → retorna apenas pedidos dele
-º Se admin → retorna todos os pedidos
-º Retorna: 200 OK
-
-controllerObterPedido (GET /pedidos/:id)
-
-º Valida se pedido existe
-º Retorna pedido + itens + valores
-º Retorna: 200 OK
+controllerListarTodosPedidos (GET /pedidos)
+# - Verificar se usuário logado é admin
+# - Listar todos pedidos
+# - Retornar 200
 
 controllerAtualizarStatusPedido (PATCH /pedidos/:id/status)
+# - Verificar se usuário logado é admin
+# - Body: status
+# - Validar status: pendente → enviado → concluído → cancelado
+# - Atualizar status
+# - Retornar 200
 
-º Body: status (pendente, pago, enviado, cancelado)
-º Valida status permitido
-º Atualiza no banco
-º Retorna: 200 OK
+controllerListarItensPedido (GET /pedidos/:id/itens)
+# - Verificar se usuário logado é admin OU o pedido pertence ao usuário
+# - Buscar itens do pedido
+# - Retornar 200 + lista
 
-controllerListarItensDoPedido (GET /pedidos/:id/itens)
+🔹 ENDERECOS
 
-º Valida se pedido existe
-º Retorna: 200 OK + itens do pedido
+controllerCriarEndereco (POST /enderecos)
+# - Verificar usuário logado
+# - Validar campos obrigatorios
+# - Body: endereco, cidade, estado, cep
+# - Criar endereço vinculado ao usuário logado
+# - Retornar 201
+
+controllerListarEnderecos (GET /enderecos)
+# - Verificar usuario logado
+# - Buscar endereços do usuário logado
+# - Retornar 200 e endereços do usuario
+
+controllerAtualizarEndereco (PATCH /enderecos/:id)
+# - Verificar usuário logado
+# - Validar se endereço pertence ao usuário
+# - Atualizar campos recebidos
+# - Retornar 200 + atualizado
+
+controllerDeletarEndereco (DELETE /enderecos/:id)
+# - Verificar usuario logado
+# - Verificar se endereço pertence ao usuário
+# - Deletar endereço
+# - Retornar 204
+
+🔹 IMAGENS PRODUTOS
+
+controllerAdicionarImagemProduto (POST /produtos/:id/imagens)
+# - Verificar se usuário logado é admin
+# - Body: url da imagem
+# - Validar url
+# - Verificar se produto existe
+# - Criar registro em imagens_produto
+# - Retornar 201 + imagem adicionada
+
+controllerListarImagensProduto (GET /produtos/:id/imagens)
+# - Verificar se produto existe
+# - Listar todas as imagens do produto
+# - Retornar 200 + lista
+
+controllerDeletarImagem (DELETE /produtos/imagens/:id)
+# - Verificar se usuário logado é admin
+# - Verificar imagem existe
+# - Deletar imagem pelo id
+# - Retornar 204
+
+🔹 PROMOÇÕES
+
+controllerCriarPromocao (POST /promocoes)
+# - Verificar se usuário logado é admin
+# - Body: produto_id, preco_promocional, começa_em, termina_em
+# - Validar campos obrigatorios
+# - Verificar se produto existe
+# - Criar promoção
+# - Retornar 201 + promoção criada
+
+controllerListarPromocoes (GET /promocoes)
+# - Sem autenticação
+# - Listar promoções ativas
+# - Retornar 200 + lista
+
+controllerAtualizarPromocao (PATCH /promocoes/:id)
+# - Verificar se usuário logado é admin
+# - Validar campos enviados
+# - Atualizar promoção
+# - Retornar 200 + promoção atualizada
+
+controllerDeletarPromocao (DELETE /promocoes/:id)
+# - Verificar se usuário logado é admin
+# - Verificar promoção existe
+# - Deletar
+# - Retornar 204
+
+OUTROS
+
+controllerListarCategoriasComProdutos (GET /categorias/com-produtos)
+# - Listar categorias junto com produtos associados
+# - Retornar 200 + lista
+
+controllerBuscarPedidosPorStatus (GET /pedidos/status/:status)
+# - Verificar se usuário logado é admin
+# - Buscar pedidos filtrados por status
+# - Retornar 200 + lista

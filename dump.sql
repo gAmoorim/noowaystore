@@ -76,3 +76,14 @@ CREATE TABLE imagens_produto (
     produto_id INTEGER REFERENCES produtos(id) ON DELETE CASCADE,
     url TEXT NOT NULL
 );
+
+-- 9) PROMOCOES
+
+CREATE TABLE promocoes (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+    preco_promocional NUMERIC(10,2) NOT NULL,
+    começa_em TIMESTAMP NOT NULL,
+    termina_em TIMESTAMP, -- pode ser NULL para promoção permanente
+    ativa BOOLEAN DEFAULT TRUE
+);

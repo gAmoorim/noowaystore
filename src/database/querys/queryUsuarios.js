@@ -18,9 +18,30 @@ const queryCadastrarNovoUsuario = async (nome, email, senha_hash, telefone, tipo
     .returning('*')
 }
 
+const queryListarUsuarios = async () => {
+    return await knex('usuarios')
+    .select('id', 'nome', 'email', 'telefone', 'tipo', 'criado_em')
+}
+
+const queryVerificarTelefoneCadastrado = async (telefone) => {
+    return await knex('usuarios')
+    .where({telefone})
+    .first()
+}
+
+const queryAtualizarUsuario = async (nome, email, senha, telefone, id) => {
+    return await knex('usuarios')
+    .where({id})
+    .update({ nome, email, senha_hash: senha, telefone})
+    .returning('*')
+}
+
 
 module.exports = {
     queryBuscarUsuarioPeloId,
     queryBuscarUsuarioPeloEmail,
-    queryCadastrarNovoUsuario
+    queryCadastrarNovoUsuario,
+    queryListarUsuarios,
+    queryVerificarTelefoneCadastrado,
+    queryAtualizarUsuario
 }
