@@ -1,8 +1,8 @@
 const knex = require('../connection')
 
-const queryBuscarUsuarioPeloId = async (id) => {
+const queryBuscarUsuarioPeloId = async (usuarioId) => {
     return await knex('usuarios')
-    .where({id})
+    .where({id: usuarioId})
     .first()
 }
 
@@ -29,13 +29,18 @@ const queryVerificarTelefoneCadastrado = async (telefone) => {
     .first()
 }
 
-const queryAtualizarUsuario = async (nome, email, senha, telefone, id) => {
+const queryAtualizarUsuario = async (nome, email, senha, telefone, usuarioId) => {
     return await knex('usuarios')
-    .where({id})
+    .where({id: usuarioId})
     .update({ nome, email, senha_hash: senha, telefone})
     .returning('*')
 }
 
+const queryDeletarUsuario = async (usuarioId) => {
+    return await knex('usuarios')
+    .where({ id: usuarioId})
+    .del()
+}
 
 module.exports = {
     queryBuscarUsuarioPeloId,
@@ -43,5 +48,6 @@ module.exports = {
     queryCadastrarNovoUsuario,
     queryListarUsuarios,
     queryVerificarTelefoneCadastrado,
-    queryAtualizarUsuario
+    queryAtualizarUsuario,
+    queryDeletarUsuario
 }

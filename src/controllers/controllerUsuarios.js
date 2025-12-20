@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const { validarEmail, validarTelefone } = require("../utils/validations")
-const { queryCadastrarNovoUsuario, queryBuscarUsuarioPeloEmail, queryListarUsuarios, queryBuscarUsuarioPeloId, queryVerificarTelefoneCadastrado, queryAtualizarUsuario } = require('../database/querys/queryUsuarios')
+const { queryCadastrarNovoUsuario, queryBuscarUsuarioPeloEmail, queryListarUsuarios, queryBuscarUsuarioPeloId, queryVerificarTelefoneCadastrado, queryAtualizarUsuario, queryDeletarUsuario } = require('../database/querys/queryUsuarios')
 
 const controllerCadastrarUsuario = async (req,res) => {
     const { nome, email, senha, telefone, tipo } = req.body
@@ -71,20 +71,20 @@ const controllerListarUsuarios = async (req, res) => {
 }
 
 const controllerObterUsuario = async (req, res) => {
-    const {id} = req.params
+    const {usuarioId} = req.params
 
-    if (!id) {
+    if (!usuarioId) {
         return res.status(400).json({ error: 'Não foi possível obter o id'})
     }
 
     try {
         const usuarioLogado = req.usuario
 
-        if (String(usuarioLogado.id) !== String(id) && usuarioLogado.tipo !== 'admin') {
+        if (String(usuarioLogado.id) !== String(usuarioId) && usuarioLogado.tipo !== 'admin') {
             return res.status(403).json({ error: 'Somente o próprio usuario ou admin pode obter acesso'})
         }
         
-        const usuario = await queryBuscarUsuarioPeloId(id)
+        const usuario = await queryBuscarUsuarioPeloId(usuarioId)
 
         if (!usuario) {
             return res.status(404).json({ error: 'Nenhum usuário encontrado'})
@@ -109,9 +109,9 @@ const controllerAtualizarUsuario = async (req, res) => {
         return res.status(400).json({ error: 'Formato de email inválido'})
     }
 
-    const {id} = req.usuario
+    const usuarioId = req.usuario.id
 
-    if (!id) {
+    if (!usuarioId) {
         return res.status(400).json({ error: 'Não foi possível obter o id do usuário'})
     }
 
@@ -143,7 +143,7 @@ const controllerAtualizarUsuario = async (req, res) => {
             }
         }
 
-        const usuarioAtualizado = await queryAtualizarUsuario(nome, email, senha, telefone, id)
+        const usuarioAtualizado = await queryAtualizarUsuario(nome, email, senha, telefone, usuarioId)
         
         return res.status(200).json({ mensagem: 'Usuário atualizado', usuarioAtualizado})
     } catch (error) {
@@ -153,9 +153,37 @@ const controllerAtualizarUsuario = async (req, res) => {
 
 }
 
+const controllerDeletarUsuario = async (req, res) => {
+    const {usuarioId} = req.params
+
+    if (!usuarioId) {
+        return res.status(400).json({ error: 'informe o id do usuario para ser deletado'})
+    }
+
+    try {
+        const usuarioLogado = req.usuario
+
+        if (!usuarioLogado.id) {
+            return res.status(400).json({ error: 'Não foi possível obter o id do usuario logado'})
+        }
+
+        if (String(usuarioLogado.id) !== String(usuarioId) && usuarioLogado.tipo !== 'admin') {
+            return res.status(403).json({ error: 'Somente o próprio usuario ou admin pode obter acesso'})
+        }
+        
+        await queryDeletarUsuario(usuarioId)
+
+        return res.status(204).json({ mensagem: 'Usuário deletado'})
+    } catch (error) {
+        console.error('Ocorreu um erro ao deletar o usuario', error)
+        return res.status(500).json({ error: `ocorreu um erro ao deletar o usuário ${error.message}`})
+    }
+} 
+
 module.exports = {
     controllerCadastrarUsuario,
     controllerListarUsuarios,
     controllerObterUsuario,
-    controllerAtualizarUsuario
+    controllerAtualizarUsuario,
+    controllerDeletarUsuario
 }

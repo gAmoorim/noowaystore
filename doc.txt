@@ -49,24 +49,27 @@ controllerDeletarUsuario (DELETE /usuarios/:id)
 
 🔹 CATEGORIAS
 
-controllerCriarCategoria (POST /categorias)
-# - Verificar se usuário logado é admin
-# - Body: nome
-# - Validar se nome foi informado
-# - Verificar se categoria já existe
-# - Inserir categoria
-# - Retornar 201 + categoria criada
+controllerCriarCategoria (POST auth/categorias)
+    # - Body: nome
+    # - Validar se nome foi informado
+    # - Verificar se usuário logado é admin
+    # - Verificar se categoria já existe
+    # - Inserir categoria
+    # - Retornar 201 + categoria criada
 
 controllerListarCategorias (GET /categorias)
-# - Sem autenticação
-# - Buscar todas
-# - Retornar 200 + lista
+    # - Sem autenticação
+    # - Buscar todas
+    # - Retornar 200 + lista
+
+controllerAlterarNomeCategoria
+
 
 controllerDeletarCategoria (DELETE /categorias/:id)
-# - Verificar se usuário logado é admin
-# - Buscar / Verificar se categoria existe
-# - Deletar categoria
-# - Retornar 204
+    # - Verificar se usuário logado é admin
+    # - Buscar / Verificar se categoria existe
+    # - Deletar categoria
+    # - Retornar 204
 
 🔹 PRODUTOS
 
