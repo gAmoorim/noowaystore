@@ -14,6 +14,7 @@ const queryListarCategorias = async () => {
 const queryBuscarCategoria = async(nome) => {
     return await knex('categorias')
     .where({nome})
+    .first('*')
 }
 
 const queryAlterarNomeCategoria = async(categoriaId, nome) => {
@@ -23,9 +24,23 @@ const queryAlterarNomeCategoria = async(categoriaId, nome) => {
     .returning('*')
 }
 
+const queryBuscarCategoriaPorId = async(categoriaId) => {
+    return await knex('categorias')
+    .where({id: categoriaId})
+    .first('*')
+}
+
+const queryDeletarCategoria = async (categoriaId) => {
+    return await knex('categorias')
+    .where({ id: categoriaId})
+    .del()
+}
+
 module.exports = {
     queryCadastrarCategoria,
     queryListarCategorias,
     queryBuscarCategoria,
-    queryAlterarNomeCategoria
+    queryAlterarNomeCategoria,
+    queryBuscarCategoriaPorId,
+    queryDeletarCategoria
 }

@@ -1,21 +1,30 @@
 const knex = require('../connection')
 
+const queryBuscarUsuarioLogin = async (email) => {
+    return await knex('usuarios')
+    .select('id', 'nome', 'email', 'senha_hash', 'tipo')
+    .where({ email})
+    .first()
+}
+
 const queryBuscarUsuarioPeloId = async (usuarioId) => {
     return await knex('usuarios')
+    .select('id', 'nome', 'email', 'telefone', 'tipo', 'criado_em')
     .where({id: usuarioId})
     .first()
 }
 
 const queryBuscarUsuarioPeloEmail = async (email) => {
     return await knex('usuarios')
+    .select('id', 'nome', 'email', 'telefone', 'tipo', 'criado_em')
     .where({email})
     .first()
 }
 
-const queryCadastrarNovoUsuario = async (nome, email, senha_hash, telefone, tipo) => {
+const queryCadastrarNovoUsuario = async (nome, email, senha_hash, telefone) => {
     return await knex('usuarios')
-    .insert({ nome, email, senha_hash, telefone, tipo})
-    .returning('*')
+    .insert({ nome, email, senha_hash, telefone})
+    .select('nome', 'email')
 }
 
 const queryListarUsuarios = async () => {
@@ -33,7 +42,7 @@ const queryAtualizarUsuario = async (nome, email, senha, telefone, usuarioId) =>
     return await knex('usuarios')
     .where({id: usuarioId})
     .update({ nome, email, senha_hash: senha, telefone})
-    .returning('*')
+    .select('nome', 'email', 'telefone')
 }
 
 const queryDeletarUsuario = async (usuarioId) => {
@@ -43,6 +52,7 @@ const queryDeletarUsuario = async (usuarioId) => {
 }
 
 module.exports = {
+    queryBuscarUsuarioLogin,
     queryBuscarUsuarioPeloId,
     queryBuscarUsuarioPeloEmail,
     queryCadastrarNovoUsuario,

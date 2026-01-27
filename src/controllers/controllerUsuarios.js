@@ -3,7 +3,7 @@ const { validarEmail, validarTelefone } = require("../utils/validations")
 const { queryCadastrarNovoUsuario, queryBuscarUsuarioPeloEmail, queryListarUsuarios, queryBuscarUsuarioPeloId, queryVerificarTelefoneCadastrado, queryAtualizarUsuario, queryDeletarUsuario } = require('../database/querys/queryUsuarios')
 
 const controllerCadastrarUsuario = async (req,res) => {
-    const { nome, email, senha, telefone, tipo } = req.body
+    const { nome, email, senha, telefone} = req.body
 
     if (!nome || !email || !senha) {
         return res.status(400).json({ error: 'Preencha os campos necessários'})
@@ -30,7 +30,7 @@ const controllerCadastrarUsuario = async (req,res) => {
     }
 
     try {
-        const verificarEmailExistente = await queryBuscarUsuarioPeloEmail(email)
+        const verificarEmailExistente = await queryBuscarUsuarioPeloEmail(email.toLowerCase())
 
         if (verificarEmailExistente) {
             return res.status(400).json({ error: 'Já existe um usuário cadastrado com esse email'})
@@ -38,10 +38,15 @@ const controllerCadastrarUsuario = async (req,res) => {
 
         const senha_hash = await bcrypt.hash(senha, 10)
 
-        const usuario = await queryCadastrarNovoUsuario(nome, email, senha_hash, telefone, tipo)
+        await queryCadastrarNovoUsuario(
+            nome.toLowerCase(), 
+            email.toLowerCase(), 
+            senha_hash, 
+            telefone
+        )
 
         return res.status(201).json({ mensagem: 'Usuário criado',
-            usuario: usuario
+            usuario: nome, email
         })
     } catch (error) {
         console.error("Ocorreu um erro ao cadastrar o usuário:", error)
@@ -50,10 +55,8 @@ const controllerCadastrarUsuario = async (req,res) => {
 }
 
 const controllerListarUsuarios = async (req, res) => {
-    const { tipo } = req.usuario
-
-    if (tipo !== 'admin') {
-        return res.status(403).json({ error: 'acesso negado'})
+    if (req.usuario.tipo !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado'})
     }
 
     try {
@@ -87,12 +90,12 @@ const controllerObterUsuario = async (req, res) => {
         const usuario = await queryBuscarUsuarioPeloId(usuarioId)
 
         if (!usuario) {
-            return res.status(404).json({ error: 'Nenhum usuário encontrado'})
+            return res.status(404).json({ error: 'Usuário não encontrado'})
         }
 
-        return res.status(200).json({ mensagem: 'Usuário encontrado', usuario})
+        return res.status(200).json(usuario)
     } catch (error) {
-        console.error('Ocorreu um erro ao obter o usuario', error)
+        console.error('Erro ao obter usuário', error)
         return res.status(500).json({ error: `ocorreu um erro ao obter o usuário ${error.message}`})
     }
     
@@ -124,7 +127,7 @@ const controllerAtualizarUsuario = async (req, res) => {
         }
 
         if (email) {
-            const emailExistente = await queryBuscarUsuarioPeloEmail(email)
+            const emailExistente = await queryBuscarUsuarioPeloEmail(email.toLowerCase())
 
             if (emailExistente) {
                 return res.status(400).json({ error: 'O email já existe'})
@@ -143,7 +146,19 @@ const controllerAtualizarUsuario = async (req, res) => {
             }
         }
 
-        const usuarioAtualizado = await queryAtualizarUsuario(nome, email, senha, telefone, usuarioId)
+        await queryAtualizarUsuario(
+            nome.toLowerCase(),
+            email.toLowerCase(),
+            senha,
+            telefone,
+            usuarioId
+        )
+
+        const usuarioAtualizado = {
+            nome,
+            email,
+            telefone
+        }
         
         return res.status(200).json({ mensagem: 'Usuário atualizado', usuarioAtualizado})
     } catch (error) {
@@ -168,7 +183,7 @@ const controllerDeletarUsuario = async (req, res) => {
         }
 
         if (String(usuarioLogado.id) !== String(usuarioId) && usuarioLogado.tipo !== 'admin') {
-            return res.status(403).json({ error: 'Somente o próprio usuario ou admin pode obter acesso'})
+            return res.status(403).json({ error: 'Somente o próprio usuario ou admin pode realizar essa ação'})
         }
         
         await queryDeletarUsuario(usuarioId)

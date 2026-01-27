@@ -1,4 +1,4 @@
-const { queryCadastrarCategoria, queryListarCategorias, queryBuscarCategoria, queryAlterarNomeCategoria } = require("../database/querys/queryCategorias")
+const { queryCadastrarCategoria, queryListarCategorias, queryBuscarCategoria, queryAlterarNomeCategoria, queryBuscarCategoriaPorId, queryDeletarCategoria } = require("../database/querys/queryCategorias")
 
 const controllerCriarCategoria = async (req, res) => {
     const { nome } = req.body
@@ -40,7 +40,7 @@ const controllerListarCategorias = async (req, res) => {
     }
 }
 
-const controllerAtualizarNomeCategoria = async (req, res) => {
+const controllerAtualizarCategoria = async (req, res) => {
     const {nome} = req.body
     const {categoriaId} = req.params
 
@@ -59,17 +59,54 @@ const controllerAtualizarNomeCategoria = async (req, res) => {
             return res.status(403).json({ error: 'Acesso negado'})
         }
 
+        const categoria = await queryBuscarCategoriaPorId(categoriaId)
+
+        if (!categoria) {
+            return res.status(404).json({ error: 'Categoria não existe'})
+        }
+
         const nomeAtualizado = await queryAlterarNomeCategoria(categoriaId, nome)
 
         return res.status(200).json({ mensagem: 'Nome atualizado', nomeAtualizado})
     } catch (error) {
-        console.error("Ocorreu um erro ao alterar o nome:", error)
-        return res.status(500).json({ error: `Erro ao alterar o nome: ${error.message}`})
+        console.error("Ocorreu um erro ao atualizar a categoria:", error)
+        return res.status(500).json({ error: `Erro ao atualizar a categoria: ${error.message}`})
     }
+}
+
+const controllerDeletarCategoria = async (req, res) => {
+    const {categoriaId} = req.params
+
+    if (!categoriaId) {
+        return res.status(400).json({ error: 'Informe o id da categoria.'})
+    }
+
+    try {
+        const usuarioLogado = req.usuario
+
+        if (usuarioLogado.tipo !== 'admin') {
+            return res.status(403).json({ error: 'Acesso negado.'})
+        }
+
+        const categoria = await queryBuscarCategoriaPorId(categoriaId)
+
+        if (!categoria) {
+            return res.status(404).json({ error: 'Categoria não existe.'})
+        }
+
+        await queryDeletarCategoria(categoriaId)
+
+        return res.status(200).json({mensagem: 'Categoria deletada.'})
+    } catch (error) {
+        console.error('Ocorreu um erro ao deletar a categoria', error)
+        return res.status(500).json({ error: `Erro ao deletar a categoria ${error.message}`})
+    }
+
 }
 
 module.exports = {
     controllerCriarCategoria,
     controllerListarCategorias,
-    controllerAtualizarNomeCategoria
+    controllerAtualizarCategoria,
+    controllerDeletarCategoria
 }

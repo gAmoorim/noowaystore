@@ -62,7 +62,7 @@ controllerListarCategorias (GET /categorias)
     # - Buscar todas
     # - Retornar 200 + lista
 
-controllerAlterarNomeCategoria
+controllerAtualizarNomeCategoria
 
 
 controllerDeletarCategoria (DELETE /categorias/:id)
@@ -74,8 +74,8 @@ controllerDeletarCategoria (DELETE /categorias/:id)
 🔹 PRODUTOS
 
 controllerCriarProduto (POST /produtos)
-# - Verificar se usuário logado é admin
 # - Body: nome, descricao, preco, categoria_id, disponivel (default true)
+# - Verificar se usuário logado é admin
 # - Validar campos obrigatórios (nome, preco)
 # - Validar categoria existente (se informado)
 # - Criar produto

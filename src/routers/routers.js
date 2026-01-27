@@ -1,7 +1,7 @@
 const express = require('express')
 const { controllerCadastrarUsuario, controllerListarUsuarios, controllerObterUsuario, controllerAtualizarUsuario, controllerDeletarUsuario } = require('../controllers/controllerUsuarios')
 const { controllerLoginUsuario } = require('../controllers/controllerLogin')
-const { controllerCriarCategoria, controllerListarCategorias } = require('../controllers/controllerCategorias')
+const { controllerCriarCategoria, controllerListarCategorias, controllerAtualizarCategoria, controllerDeletarCategoria } = require('../controllers/controllerCategorias')
 const auth = require('../middlewares/auth')
 
 const routers = express()
@@ -16,5 +16,7 @@ routers.delete('/usuarios/:usuarioId', auth, controllerDeletarUsuario)
 
 routers.post('/categorias', auth, controllerCriarCategoria)
 routers.get('/categorias', controllerListarCategorias)
+routers.put('/categorias/:categoriaId', auth, controllerAtualizarCategoria)
+routers.delete('/categorias/:categoriaId', auth, controllerDeletarCategoria)
 
 module.exports = routers
