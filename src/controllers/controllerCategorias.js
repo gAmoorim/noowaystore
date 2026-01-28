@@ -14,15 +14,15 @@ const controllerCriarCategoria = async (req, res) => {
             return res.status(403).json({ error: 'Acesso negado'})
         }
 
-        const categoriaExistente = await queryBuscarCategoria(nome)
+        const categoriaExistente = await queryBuscarCategoria(nome.toLowerCase())
 
         if (categoriaExistente) {
             return res.status(400).json({ error: 'Categoria já existe'})
         }
 
-        const categoria = await queryCadastrarCategoria(nome)
+        const categoria = await queryCadastrarCategoria(nome.toLowerCase())
 
-        return res.status(200).json({ mensagem: 'categoria criada', categoria})
+        return res.status(201).json({ mensagem: 'categoria criada', categoria})
     } catch (error) {
         console.error("Ocorreu um erro ao cadastrar a categoria:", error)
         return res.status(500).json({ error: `Erro ao cadastrar a categoria: ${error.message}`})
@@ -65,7 +65,7 @@ const controllerAtualizarCategoria = async (req, res) => {
             return res.status(404).json({ error: 'Categoria não existe'})
         }
 
-        const nomeAtualizado = await queryAlterarNomeCategoria(categoriaId, nome)
+        const nomeAtualizado = await queryAlterarNomeCategoria(categoriaId, nome.toLowerCase())
 
         return res.status(200).json({ mensagem: 'Nome atualizado', nomeAtualizado})
     } catch (error) {
