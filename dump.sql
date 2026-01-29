@@ -25,7 +25,6 @@ CREATE TABLE produtos (
     descricao TEXT,
     preco NUMERIC(10,2) NOT NULL,
     categoria_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
-    disponivel BOOLEAN DEFAULT TRUE,
     criado_em TIMESTAMP DEFAULT NOW()
 );
 
@@ -71,10 +70,12 @@ CREATE TABLE enderecos (
 
 -- 8) IMAGENS DOS PRODUTOS
 
-CREATE TABLE imagens_produto (
+CREATE TABLE imagens_produtos (
     id SERIAL PRIMARY KEY,
     produto_id INTEGER REFERENCES produtos(id) ON DELETE CASCADE,
-    url TEXT NOT NULL
+    url TEXT NOT NULL,
+    img_principal BOOLEAN DEFAULT false,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 9) PROMOCOES

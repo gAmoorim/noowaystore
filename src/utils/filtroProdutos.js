@@ -13,8 +13,14 @@ const aplicarFiltrosProdutos = (query, filtros) => {
   if (preco_min) query.where('preco', '>=', Number(preco_min))
   if (preco_max) query.where('preco', '<=', Number(preco_max))
   if (categoria_id) query.where('categoria_id', Number(categoria_id))
-  if (disponivel !== undefined)
-    query.where('disponivel', disponivel === 'true')
+
+  if (disponivel === 'true') {
+    query.whereRaw('COALESCE(e.quantidade, 0) > 0')
+  }
+
+  if (disponivel === 'false') {
+    query.whereRaw('COALESCE(e.quantidade, 0) = 0')
+  }
 }
 
 module.exports = {

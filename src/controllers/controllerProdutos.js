@@ -2,7 +2,7 @@ const { queryBuscarCategoriaPorId } = require("../database/querys/queryCategoria
 const { queryCadastrarProduto, queryListarProdutos } = require("../database/querys/queryProdutos")
 
 const controllerCadastrarProduto = async (req, res) => {
-    const { nome, descricao, preco, categoria_id, disponivel } = req.body  //disp default true
+    const { nome, descricao, preco, categoria_id } = req.body
 
     if (!nome || !preco) {
         return res.status(400),json({ error: 'Nome e preço são obrigatórios'})
@@ -27,8 +27,7 @@ const controllerCadastrarProduto = async (req, res) => {
             nome.toLowerCase(), 
             descricao.toLowerCase(), 
             preco, 
-            categoria_id, 
-            disponivel
+            categoria_id
         )
 
         return res.status(201).json({ mensagem: 'Produto cadastrado', produto: produtoCadastrado})
@@ -40,13 +39,21 @@ const controllerCadastrarProduto = async (req, res) => {
 
 const controllerListarProdutos = async (req, res) => {
     try {
-      const produtos = await queryListarProdutos(req.query)
+      const produtos = await queryListarProdutos(req.query) // RETORNAR APENAS IMG PRINCIPAL
       
       return res.status(200).json(produtos)
     } catch (error) {
         console.error("Erro ao listar produtos:", error)
         return res.status(500).json({ error: `Erro ao listar produtos: ${error.message}`})
     }
+}
+
+const controllerBuscarProduto = async (req, res) => {
+    const { produtoId} = req.query
+
+    // RETORNAR TODAS AS IMGS
+
+
 }
 
 module.exports = {

@@ -236,6 +236,9 @@ controllerDeletarPromocao (DELETE /promocoes/:id)
 
 OUTROS
 
+criar pianel de admin ou
+painel para cadastrar e manipular produtos
+
 controllerListarCategoriasComProdutos (GET /categorias/com-produtos)
 # - Listar categorias junto com produtos associados
 # - Retornar 200 + lista
