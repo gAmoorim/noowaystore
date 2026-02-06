@@ -86,14 +86,14 @@ controllerListarProdutos (GET /produtos)
 # - Suporta filtros: nome, preco_min, preco_max, categoria_id, disponivel
 # - Retornar 200
 
-controllerBuscarProduto (GET /produtos/:id)
+controllerObterProduto (GET /produtos/:id)
 # - Buscar produto pelo id
 # - Incluir imagens, estoque, categorias
 # - Retornar 200
 
 controllerAtualizarProduto (PUT /produtos/:id)
 # - Verificar se usuário logado é admin
-# - Validar dados enviados ( nome, descricao, preco, disponivel)
+# - Validar dados enviados ( nome, descricao, preco)
 # - Verificar se produto existe
 # - Atualizar campos enviados
 # - Retornar 200 + produto atualizado

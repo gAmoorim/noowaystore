@@ -1,6 +1,12 @@
 const { queryCadastrarCategoria, queryListarCategorias, queryBuscarCategoria, queryAlterarNomeCategoria, queryBuscarCategoriaPorId, queryDeletarCategoria } = require("../database/querys/queryCategorias")
 
 const controllerCriarCategoria = async (req, res) => {
+    const usuarioLogado = req.usuario
+
+    if (usuarioLogado.tipo !== "admin") {
+        return res.status(403).json({ error: 'Acesso negado'})
+    }
+    
     const { nome } = req.body
 
     if (!nome) {
@@ -8,12 +14,6 @@ const controllerCriarCategoria = async (req, res) => {
     }
 
     try {
-        const usuarioLogado = req.usuario
-
-        if (usuarioLogado.tipo !== "admin") {
-            return res.status(403).json({ error: 'Acesso negado'})
-        }
-
         const categoriaExistente = await queryBuscarCategoria(nome.toLowerCase())
 
         if (categoriaExistente) {
@@ -41,24 +41,25 @@ const controllerListarCategorias = async (req, res) => {
 }
 
 const controllerAtualizarCategoria = async (req, res) => {
+    const usuarioLogado = req.usuario
+
+    if (usuarioLogado.tipo !== "admin") {
+        return res.status(403).json({ error: 'Acesso negado'})
+    }
+
     const {nome} = req.body
+
+    if (!nome) {
+        return res.status(400).json({ error: 'Preencha os campos necessários'})
+    }
+
     const {categoriaId} = req.params
 
     if (!categoriaId) {
         return res.status(400).json({ error: 'Informe o id da categoria'})
     }
 
-    if (!nome) {
-        return res.status(400).json({ error: 'Preencha os campos necessários'})
-    }
-
     try {
-        const usuarioLogado = req.usuario
-
-        if (usuarioLogado.tipo !== "admin") {
-            return res.status(403).json({ error: 'Acesso negado'})
-        }
-
         const categoria = await queryBuscarCategoriaPorId(categoriaId)
 
         if (!categoria) {
@@ -75,6 +76,12 @@ const controllerAtualizarCategoria = async (req, res) => {
 }
 
 const controllerDeletarCategoria = async (req, res) => {
+    const usuarioLogado = req.usuario
+
+    if (usuarioLogado.tipo !== 'admin') {
+        return res.status(403).json({ error: 'Acesso negado.'})
+    }
+
     const {categoriaId} = req.params
 
     if (!categoriaId) {
@@ -82,12 +89,6 @@ const controllerDeletarCategoria = async (req, res) => {
     }
 
     try {
-        const usuarioLogado = req.usuario
-
-        if (usuarioLogado.tipo !== 'admin') {
-            return res.status(403).json({ error: 'Acesso negado.'})
-        }
-
         const categoria = await queryBuscarCategoriaPorId(categoriaId)
 
         if (!categoria) {
