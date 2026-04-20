@@ -62,7 +62,9 @@ CREATE TABLE itens_pedido (
 CREATE TABLE enderecos (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
-    endereco TEXT NOT NULL,
+    logradouro TEXT NOT NULL,
+    numero varchar(10) NOT NULL,
+    complemento TEXT,
     cidade VARCHAR(100) NOT NULL,
     estado VARCHAR(50) NOT NULL,
     cep VARCHAR(20) NOT NULL
