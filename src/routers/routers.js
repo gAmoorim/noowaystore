@@ -4,6 +4,7 @@ const { controllerLoginUsuario } = require('../controllers/controllerLogin')
 const { controllerCriarCategoria, controllerListarCategorias, controllerAtualizarCategoria, controllerDeletarCategoria } = require('../controllers/controllerCategorias')
 const { controllerCadastrarProduto, controllerListarProdutos, controllerObterProduto, controllerAtualizarProduto, controllerDeletarProduto } = require('../controllers/controllerProdutos')
 const { controllerCriarEstoque, controllerListarEstoque, controllerAtualizarEstoque } = require('../controllers/controllerEstoque')
+const { controllerCriarPedido, controllerListarPedidosUsuario, controllerListarTodosPedidos, controllerAtualizarStatusPedido, controllerListarItensPedido } = require('../controllers/controllerPedidos')
 
 const auth = require('../middlewares/auth')
 
@@ -31,5 +32,11 @@ routers.delete('/produtos/:produtoId', auth, controllerDeletarProduto)
 routers.post('/estoque', auth, controllerCriarEstoque)
 routers.get('/estoque', auth, controllerListarEstoque)
 routers.put('/estoque/:estoqueId', auth, controllerAtualizarEstoque)
+
+routers.post('/pedidos', auth, controllerCriarPedido)
+routers.get('/pedidos/minha-conta', auth, controllerListarPedidosUsuario)
+routers.get('/pedidos', auth, controllerListarTodosPedidos)
+routers.patch('/pedidos/:pedidoId/status', auth, controllerAtualizarStatusPedido)
+routers.get('/pedidos/:pedidoId/itens', auth, controllerListarItensPedido)
 
 module.exports = routers

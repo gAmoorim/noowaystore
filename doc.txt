@@ -129,8 +129,8 @@ controllerAtualizarEstoque (PUT /estoque/:id)
 🔹  PEDIDOS
 
 controllerCriarPedido (POST /pedidos)
+# - Body: itens = [{ produto_id, quantidade }] (array)
 # - Verificar autenticacao
-# - Body: itens = [{ estoque_id, quantidade }] (array)
 # - verificar se cada item existe no estoque
 # - Verificar se quantidade solicitada ≤ disponível
 # - Criar pedido com status = 'pendente'

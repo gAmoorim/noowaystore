@@ -55,7 +55,9 @@ const controllerCadastrarUsuario = async (req,res) => {
 }
 
 const controllerListarUsuarios = async (req, res) => {
-    if (req.usuario.tipo !== 'admin') {
+    const usuario = req.usuario
+    
+    if (usuario.tipo !== 'admin') {
         return res.status(403).json({ error: 'Acesso negado'})
     }
 
