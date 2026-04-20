@@ -8,7 +8,15 @@ function validarTelefone(celular) {
   return regex.test(celular);
 }
 
+function validarCEP(cep) {
+    if (typeof cep !== 'string') return false
+    
+    const regex = /^\d{5}-?\d{3}$/
+    return regex.test(cep)
+}
+
 module.exports = {
     validarEmail,
-    validarTelefone
+    validarTelefone,
+    validarCEP
 }

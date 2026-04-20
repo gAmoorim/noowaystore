@@ -163,9 +163,9 @@ controllerListarItensPedido (GET /pedidos/:id/itens)
 🔹 ENDERECOS
 
 controllerCriarEndereco (POST /enderecos)
-# - Verificar usuário logado
-# - Validar campos obrigatorios
 # - Body: endereco, cidade, estado, cep
+# - Validar campos obrigatorios
+# - Verificar usuário logado
 # - Criar endereço vinculado ao usuário logado
 # - Retornar 201
 
