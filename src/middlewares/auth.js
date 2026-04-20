@@ -1,7 +1,7 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
 const { queryBuscarUsuarioPeloId } = require('../database/querys/queryUsuarios')
-const senhaJWT = process.env.JWt_PWD
+const senhaJWT = process.env.JWT_PWD
 
 const auth = async (req, res, next) => {
     const { authorization } = req.headers
@@ -11,10 +11,14 @@ const auth = async (req, res, next) => {
     }
 
     try {
-        const token = authorization.replace('Bearer ', '').trim()
+        const [tipo, token] = authorization.split(' ')
 
-        if (!token) {
-            return res.status(401).json({ error: 'Token ausente'})
+        if (tipo !== 'Bearer' || !token) {
+            return res.status(401).json({ error: 'Formato do token inválido ou Ausente'})
+        }
+
+        if (!process.env.JWT_PWD) {
+            throw new Error('JWT_PWD não definido')
         }
 
         const {id} = jwt.verify(token, senhaJWT)
@@ -32,8 +36,8 @@ const auth = async (req, res, next) => {
 
         next()
     } catch (error) {
-        console.error("Erro na autenticação:", error)
-        return res.status(401).json('Token inválido ou expirado')
+        console.error("Erro na autenticação:", error.message)
+        return res.status(401).json({ error: 'Token inválido ou expirado'})
     }
 }
 

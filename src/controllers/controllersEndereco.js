@@ -24,7 +24,11 @@ const controllerCadastrarEndereco = async (req, res) => {
         const cidadeFinal = dadosCEP.localidade || cidade
         const estadoFinal = dadosCEP.uf || estado
 
-        const usuarioId = req.usuario.id 
+        if (!req.usuario || !req.usuario.id) {
+            return res.status(401).json({ error: 'Usuário não autenticado' })
+        }
+
+        const usuarioId = req.usuario?.id
 
         const novoEndereco = await queryCriarEndereco(usuarioId, enderecoFinal, cidadeFinal, estadoFinal, cep)
 
