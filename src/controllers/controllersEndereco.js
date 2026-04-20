@@ -3,11 +3,11 @@ const { buscarCEP } = require("../utils/services")
 const { validarCEP } = require("../utils/validations")
 
 const controllerCadastrarEndereco = async (req, res) => {
-    const { endereco, cidade, estado, cep} = req.body
+    const { cep, numero, complemento, logradouro, cidade, estado } = req.body
 
-    //if (!endereco || !cidade || !estado || !cep) {
-   //     return res.status(400).json({ error: 'Preencha todos os campos obrigatórios.'})
-   // }
+    if (!numero || !cep) {
+        return res.status(400).json({ error: 'Preencha todos os campos obrigatórios.'})
+    }
 
     if (!validarCEP(cep)) {
         return res.status(400).json({ error: 'Formato do CEP inválido.'})
@@ -20,17 +20,26 @@ const controllerCadastrarEndereco = async (req, res) => {
             return res.status(400).json({ error: 'CEP não encontrado'})
         }
 
-        const enderecoFinal = dadosCEP.logradouro || endereco
+        const logradouroFinal = dadosCEP.logradouro || logradouro
         const cidadeFinal = dadosCEP.localidade || cidade
         const estadoFinal = dadosCEP.uf || estado
 
-        if (!req.usuario || !req.usuario.id) {
-            return res.status(401).json({ error: 'Usuário não autenticado' })
+        if (!logradouroFinal || !cidadeFinal || !estadoFinal) {
+            return res.status(400).json({
+                error: 'Dados de endereço incompletos. Informe manualmente os campos faltantes.'
+            })
         }
 
         const usuarioId = req.usuario?.id
 
-        const novoEndereco = await queryCriarEndereco(usuarioId, enderecoFinal, cidadeFinal, estadoFinal, cep)
+        if (!usuarioId) {
+            return res.status(400).json({ error: 'Usuário não autenticado'})
+        }
+
+        const novoEndereco = await queryCriarEndereco(
+            usuarioId, logradouroFinal, numero, complemento || null,
+            cidadeFinal, estadoFinal, cep
+        )
 
         return res.status(201).json({
             mensagem: 'Endereço criado com sucesso',
