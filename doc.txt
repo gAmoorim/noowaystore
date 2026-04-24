@@ -163,7 +163,7 @@ controllerListarItensPedido (GET /pedidos/:id/itens)
 🔹 ENDERECOS
 
 controllerCriarEndereco (POST /enderecos)
-# - Body: endereco, cidade, estado, cep
+# - Body: cep, numero, complemento, logradouro, cidade, estado
 # - Validar campos obrigatorios
 # - Verificar usuário logado
 # - Criar endereço vinculado ao usuário logado
@@ -174,7 +174,8 @@ controllerListarEnderecos (GET /enderecos)
 # - Buscar endereços do usuário logado
 # - Retornar 200 e endereços do usuario
 
-controllerAtualizarEndereco (PATCH /enderecos/:id)
+controllerAtualizarEndereco (PUT /enderecos/:id)
+# - Body: cep, numero, complemento, logradouro, cidade, estado
 # - Verificar usuário logado
 # - Validar se endereço pertence ao usuário
 # - Atualizar campos recebidos

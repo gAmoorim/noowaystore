@@ -5,7 +5,7 @@ const { controllerCriarCategoria, controllerListarCategorias, controllerAtualiza
 const { controllerCadastrarProduto, controllerListarProdutos, controllerObterProduto, controllerAtualizarProduto, controllerDeletarProduto } = require('../controllers/controllerProdutos')
 const { controllerCriarEstoque, controllerListarEstoque, controllerAtualizarEstoque } = require('../controllers/controllerEstoque')
 const { controllerCriarPedido, controllerListarPedidosUsuario, controllerListarTodosPedidos, controllerAtualizarStatusPedido, controllerListarItensPedido } = require('../controllers/controllerPedidos')
-const { controllerCadastrarEndereco, controllerListarEnderecos } = require('../controllers/controllersEndereco')
+const { controllerCadastrarEndereco, controllerListarEnderecos, controllerAtualizarEndereco, controllerDeletarEndereco } = require('../controllers/controllersEndereco')
 
 const auth = require('../middlewares/auth')
 
@@ -42,5 +42,7 @@ routers.get('/pedidos/:pedidoId/itens', auth, controllerListarItensPedido)
 
 routers.post('/enderecos', auth, controllerCadastrarEndereco)
 routers.get('/enderecos', auth, controllerListarEnderecos)
+routers.put('/enderecos/:enderecoId', auth, controllerAtualizarEndereco)
+routers.delete('/endereco/:enderecoId', auth, controllerDeletarEndereco)
 
 module.exports = routers

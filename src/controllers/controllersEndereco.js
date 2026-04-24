@@ -1,4 +1,4 @@
-const { queryCriarEndereco, queryListarEnderecosUsuarioLogado } = require("../database/querys/queryEnderecos")
+const { queryCriarEndereco, queryListarEnderecosUsuarioLogado, queryAtualizarEndereco, queryVerificarEnderecoPertencente, queryDeletarEndereco } = require("../database/querys/queryEnderecos")
 const { buscarCEP } = require("../utils/services")
 const { validarCEP } = require("../utils/validations")
 
@@ -72,7 +72,69 @@ const controllerListarEnderecos = async (req, res) => {
     }
 }
 
+const controllerAtualizarEndereco = async (req, res) => {
+    const {cep, numero, complemento, logradouro, cidade, estado} = req.body
+
+    if (!cep && !numero && !complemento && !logradouro && !cidade && !estado) {
+        return res.status(400).json({ error: 'Informe ao menos um campo para atualizar' })
+    }
+
+    const { enderecoId } = req.params
+
+    if (cep && !validarCEP(cep)) {
+        return res.status(400).json({ error: 'Formato do CEP inválido.'})
+    }
+
+    try {
+        const usuarioId = req.usuario?.id
+        
+        if (!usuarioId) {
+            return res.status(401).json({ error: 'Usuário não autenticado'})
+        }
+
+        const verificarEndereco = await queryVerificarEnderecoPertencente(usuarioId, enderecoId)
+
+        if (!verificarEndereco) {
+            return res.status(404).json({ error: 'Endereço não existe ou não encontrado'})
+        }
+
+        const enderecoAtualizado = await queryAtualizarEndereco(enderecoId, cep, numero, complemento, logradouro, cidade, estado)
+
+        return res.status(200).json({ mensagem: 'Endereço atualizado', endereco: enderecoAtualizado})
+    } catch (error) {
+        console.error('Erro ao atualizar o endereço', error)
+        return res.status(500).json({ error: `ocorreu um erro ao atualizar o endereço ${error.message}`})
+    }
+}
+
+const controllerDeletarEndereco = async (req, res) => {
+    const { enderecoId } = req.params
+
+    try {
+        const usuarioId = req.usuario?.id
+
+        if (!usuarioId) {
+            return res.status(401).json({ error: 'Usuário não encontrado'})
+        }
+        
+        const verificarEndereco = await queryVerificarEnderecoPertencente(usuarioId, enderecoId)
+
+        if (!verificarEndereco) {
+            return res.status(404).json({ error: 'Endereço não existe ou não encontrado'})
+        }
+
+        await queryDeletarEndereco(enderecoId)
+
+        return res.status(200).json({ mensagem: 'Endereço deletado'})
+    } catch (error) {
+        console.error('Erro ao deletar o endereço', error)
+        return res.status(500).json({ error: `ocorreu um erro ao deletar o endereço ${error.message}`})
+    }
+}
+
 module.exports = {
     controllerCadastrarEndereco,
-    controllerListarEnderecos
+    controllerListarEnderecos,
+    controllerAtualizarEndereco,
+    controllerDeletarEndereco
 }
