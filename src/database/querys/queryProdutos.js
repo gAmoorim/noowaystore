@@ -55,7 +55,7 @@ const queryBuscarProdutoPorId = async (produtoId) => {
 const queryBuscaFacilDoProduto = async (produtoId) => {
     return await knex('produtos')
     .where({id: produtoId})
-    .select('*')
+    .first('*')
 }
 
 const queryAtualizarProduto = async (nome, descricao, preco, categoria_id, produtoId) => {

@@ -6,8 +6,10 @@ const { controllerCadastrarProduto, controllerListarProdutos, controllerObterPro
 const { controllerCriarEstoque, controllerListarEstoque, controllerAtualizarEstoque } = require('../controllers/controllerEstoque')
 const { controllerCriarPedido, controllerListarPedidosUsuario, controllerListarTodosPedidos, controllerAtualizarStatusPedido, controllerListarItensPedido } = require('../controllers/controllerPedidos')
 const { controllerCadastrarEndereco, controllerListarEnderecos, controllerAtualizarEndereco, controllerDeletarEndereco } = require('../controllers/controllersEndereco')
+const { controllerAdicionarImagemProduto, controllerListarImagensProdutos, controllerDeletarImagemProduto } = require('../controllers/controllerImagens')
 
 const auth = require('../middlewares/auth')
+const upload = require('../config/upload')
 
 const routers = express()
 
@@ -44,5 +46,9 @@ routers.post('/enderecos', auth, controllerCadastrarEndereco)
 routers.get('/enderecos', auth, controllerListarEnderecos)
 routers.put('/enderecos/:enderecoId', auth, controllerAtualizarEndereco)
 routers.delete('/endereco/:enderecoId', auth, controllerDeletarEndereco)
+
+routers.post('/produtos/:produtoId/imagens', auth, upload.single('imagem'), controllerAdicionarImagemProduto)
+routers.get('/produtos/:produtoId/imagens', auth, controllerListarImagensProdutos)
+routers.delete('/produtos/imagens/:imagemId', auth, controllerDeletarImagemProduto)
 
 module.exports = routers
