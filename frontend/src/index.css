@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+:root {
+  --cream:#F5F0E8; --warm:#FAFAF7; --black:#0A0A0A; --char:#1C1C1C;
+  --mid:#757575; --border:#DDD8CF; --accent:#8B3A2A; --accent-l:#C4633E;
+  --gold:#B8962E; --ok:#2D6A4F; --danger:#8B1C1C; --info:#185FA5;
+  --a-bg:#0F0F0F; --a-surface:#1A1A1A; --a-surface2:#222;
+  --a-border:#2E2E2E; --a-text:#E8E8E8; --a-muted:#888;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--char);min-height:100vh;-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;}
+.serif{font-family:'Cormorant Garamond',serif;}
+.btn-p{display:inline-flex;align-items:center;gap:10px;background:var(--black);color:#fff;padding:13px 32px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s;}
+.btn-p:hover{background:#333;}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;}
+.btn-s{display:inline-flex;align-items:center;gap:10px;background:none;color:var(--black);padding:13px 32px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.btn-s:hover{background:var(--cream);}
+.fi{width:100%;padding:11px 14px;font-size:14px;border:1px solid var(--border);background:var(--warm);color:var(--char);transition:border-color .2s;}
+.fi:focus{border-color:var(--char);}
+.fl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:6px;}
+.fg{margin-bottom:18px;}
+.spin-wrap{display:flex;align-items:center;justify-content:center;padding:80px;}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--char);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;top:24px;right:24px;z-index:9999;padding:12px 22px;font-size:13px;color:#fff;animation:tin .25s ease;pointer-events:none;}
+.toast-s{background:var(--ok);}
+.toast-e{background:var(--danger);}
+.toast-i{background:var(--char);}
+@keyframes tin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
