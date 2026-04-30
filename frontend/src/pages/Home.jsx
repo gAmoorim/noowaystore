@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProdutos } from '../services/api'
-import { ProductCard, ShoeIcon, Footer } from '../components/Shared'
+import { ProductCard, Footer } from '../components/Shared'
+
+const productImage = product => product?.imagem || product?.img_principal || product?.imagens?.[0]?.url
 
 export default function Home() {
   const [products, setProducts] = useState([])
+  const [heroIndex, setHeroIndex] = useState(0)
   const navigate = useNavigate()
+  const heroProducts = products.filter(productImage).slice(0, 4)
 
   useEffect(() => {
     getProdutos().then(data => {
@@ -13,6 +17,20 @@ export default function Home() {
       setProducts(list.slice(0, 8))
     }).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (heroProducts.length < 2) return
+
+    const timer = setInterval(() => {
+      setHeroIndex(i => (i + 1) % heroProducts.length)
+    }, 3600)
+
+    return () => clearInterval(timer)
+  }, [heroProducts.length])
+
+  useEffect(() => {
+    if (heroIndex >= heroProducts.length) setHeroIndex(0)
+  }, [heroIndex, heroProducts.length])
 
   return (
     <div>
@@ -32,24 +50,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div style={{ background: '#131210', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%,rgba(139,58,42,.18) 0%,transparent 65%)' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <svg width="340" height="240" viewBox="0 0 340 240" fill="none">
-              <ellipse cx="170" cy="200" rx="140" ry="11" fill="rgba(255,255,255,.04)"/>
-              <path d="M60 185 Q80 195 170 195 Q260 195 280 185 L275 178 Q240 188 170 188 Q100 188 65 178Z" fill="#3A2A20"/>
-              <path d="M65 178 Q80 165 100 160 L100 145 Q78 148 65 162Z" fill="#5C3D2A"/>
-              <path d="M100 160 Q130 155 170 153 Q210 151 250 155 L275 178 Q240 188 170 188 Q100 188 65 178Z" fill="#8B3A2A"/>
-              <path d="M240 155 Q265 152 280 158 L275 178 Q260 185 240 188Z" fill="#A04535"/>
-              <path d="M105 157 Q140 150 180 149 Q200 148 220 149" stroke="rgba(255,255,255,.2)" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <rect x="115" y="148" width="90" height="15" rx="2" fill="#6B2A1D" opacity=".8"/>
-              <path d="M125 152 Q152 150 185 152" stroke="rgba(255,255,255,.4)" strokeWidth="1.5" fill="none"/>
-              <path d="M125 157 Q152 155 185 157" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" fill="none"/>
-              <path d="M100 145 Q100 135 110 128 L130 125 Q120 132 115 145Z" fill="#6B2A1D"/>
-            </svg>
-          </div>
-          <div style={{ position: 'absolute', bottom: 32, right: 40, fontFamily: "'Cormorant Garamond',serif", fontSize: 90, fontWeight: 300, color: 'rgba(255,255,255,.04)', letterSpacing: '.05em', lineHeight: 1, pointerEvents: 'none' }}>STYLE</div>
-        </div>
+        <HeroCarousel products={heroProducts} active={heroIndex} onSelect={setHeroIndex} onOpen={id => navigate(`/produto/${id}`)} />
       </div>
 
       {/* HIGHLIGHTS */}
@@ -89,6 +90,73 @@ export default function Home() {
 
       <Footer />
       <style>{`@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}`}</style>
+    </div>
+  )
+}
+
+function HeroCarousel({ products, active, onSelect, onOpen }) {
+  const product = products[active]
+
+  return (
+    <div style={{ background: '#131210', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,rgba(139,58,42,.2),rgba(10,10,10,.82) 48%,#0A0A0A)' }} />
+
+      {product ? (
+        <>
+          {products.map((p, i) => {
+            const img = productImage(p)
+            return (
+              <button
+                key={p.id}
+                onClick={() => onOpen(p.id)}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  background: 'none',
+                  opacity: active === i ? 1 : 0,
+                  transform: active === i ? 'scale(1)' : 'scale(1.03)',
+                  transition: 'opacity .7s ease, transform 1.2s ease',
+                  pointerEvents: active === i ? 'auto' : 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <img src={img} alt={p.nome} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '72px 86px 110px' }} />
+              </button>
+            )
+          })}
+
+          <div style={{ position: 'absolute', left: 48, right: 48, bottom: 40, zIndex: 2, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 28 }}>
+            <div>
+              <div style={{ fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 8 }}>{product.categoria_nome || 'Produto'}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 300, color: '#fff', lineHeight: 1.05 }}>{product.nome}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {products.map((p, i) => (
+                <button
+                  key={p.id}
+                  onClick={() => onSelect(i)}
+                  aria-label={`Ver ${p.nome}`}
+                  style={{
+                    width: active === i ? 34 : 10,
+                    height: 4,
+                    border: 'none',
+                    background: active === i ? '#fff' : 'rgba(255,255,255,.28)',
+                    cursor: 'pointer',
+                    transition: 'all .25s ease'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div style={{ position: 'relative', zIndex: 1, color: 'rgba(255,255,255,.62)', fontSize: 13, letterSpacing: '.12em', textTransform: 'uppercase' }}>
+          Imagens dos produtos
+        </div>
+      )}
     </div>
   )
 }

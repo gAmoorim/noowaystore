@@ -1,4 +1,4 @@
-const { queryAdicionarImagemProduto, queryListarImagensProduto, queryBuscarImagemPeloId, queryDeletarImagem } = require("../database/querys/queryImagens")
+const { queryAdicionarImagemProduto, queryDesmarcarImagemPrincipal, queryListarImagensProduto, queryBuscarImagemPeloId, queryDeletarImagem } = require("../database/querys/queryImagens")
 const { queryBuscaFacilDoProduto } = require("../database/querys/queryProdutos")
 const { deletarArquivo, deletarArquivoPorUrl } = require("../utils/deletarImagem")
 
@@ -10,28 +10,37 @@ const controllerAdicionarImagemProduto = async (req, res) => {
         const tipoUsuario = req.usuario?.tipo
 
         if (!usuarioId) {
-            return res.status(401).json({ error: 'Usuário não encontrado'})
+            return res.status(401).json({ error: 'Usuario nao encontrado'})
         }
 
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem não enviada'})
-        }
+        const { url, img_principal } = req.body
+        const principal = img_principal === true || img_principal === 'true'
 
         if (tipoUsuario !== 'admin') {
-            await deletarArquivo(req.file)
+            if (req.file) await deletarArquivo(req.file)
             return res.status(403).json({ error: 'Acesso negado'})
         }
 
         const produto = await queryBuscaFacilDoProduto(produtoId)
 
         if (!produto) {
-            await deletarArquivo(req.file)
-            return res.status(404).json({ error: 'Produto não encontrado'})
+            if (req.file) await deletarArquivo(req.file)
+            return res.status(404).json({ error: 'Produto nao encontrado'})
         }
 
-        const urlImagem = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+        if (!req.file && !url) {
+            return res.status(400).json({ error: 'Imagem nao enviada'})
+        }
 
-        const [imagemProduto] = await queryAdicionarImagemProduto(produtoId, urlImagem)
+        const urlImagem = req.file
+            ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+            : url
+
+        if (principal) {
+            await queryDesmarcarImagemPrincipal(produtoId)
+        }
+
+        const [imagemProduto] = await queryAdicionarImagemProduto(produtoId, urlImagem, principal)
 
         return res.status(201).json({
             mensagem: 'Imagem adicionada com sucesso',
@@ -39,7 +48,7 @@ const controllerAdicionarImagemProduto = async (req, res) => {
         })
 
     } catch (error) {
-        await deletarArquivo(req.file)
+        if (req.file) await deletarArquivo(req.file)
         console.error('Erro ao adicionar a imagem', error)
         return res.status(500).json({error: `ocorreu um erro ao adicionar a imagem ${error.message}`})
     }
@@ -52,7 +61,7 @@ const controllerListarImagensProdutos = async (req, res) => {
         const produto = await queryBuscaFacilDoProduto(produtoId)
 
         if (!produto) {
-            return res.status(404).json({ error: 'Produto não encontrado'})
+            return res.status(404).json({ error: 'Produto nao encontrado'})
         }
 
         const imagens = await queryListarImagensProduto(produtoId)
@@ -72,7 +81,7 @@ const controllerDeletarImagemProduto = async (req, res) => {
         const tipoUsuario = req.usuario?.tipo
 
         if (!usuarioId) {
-            return res.status(401).json({ error: 'Usuário não encontrado'})
+            return res.status(401).json({ error: 'Usuario nao encontrado'})
         }
 
         if (tipoUsuario !== 'admin') {
@@ -82,7 +91,7 @@ const controllerDeletarImagemProduto = async (req, res) => {
         const imagem = await queryBuscarImagemPeloId(imagemId)
 
         if (!imagem) {
-            return res.status(404).json({ error: 'Imagem não encontrada'})
+            return res.status(404).json({ error: 'Imagem nao encontrada'})
         }
 
         await queryDeletarImagem(imagemId)

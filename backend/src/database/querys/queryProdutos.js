@@ -1,6 +1,20 @@
 const { aplicarFiltrosProdutos } = require('../../utils/filtroProdutos')
 const knex = require('../connection')
 
+const estoqueTotal = () => knex('estoque')
+    .select('produto_id')
+    .sum({ estoque: 'quantidade' })
+    .groupBy('produto_id')
+    .as('est')
+
+const imagemPrincipalSql = knex.raw(`(
+    SELECT ip.url
+    FROM imagens_produtos ip
+    WHERE ip.produto_id = p.id
+    ORDER BY ip.img_principal DESC, ip.id ASC
+    LIMIT 1
+) as imagem`)
+
 const queryCadastrarProduto = async (nome, descricao, preco, categoria_id) => {
     return await knex('produtos')
     .insert({nome, descricao, preco, categoria_id})
@@ -15,18 +29,17 @@ const queryListarProdutos = async (filtros) => {
         'p.descricao',
         'p.preco',
         'p.categoria_id',
-        knex.raw('COALESCE(e.quantidade, 0) as estoque'),
-        'ip.url as imagem'
+        'p.criado_em',
+        'c.nome as categoria_nome',
+        knex.raw('COALESCE(est.estoque, 0) as estoque'),
+        imagemPrincipalSql
     )
-    .leftJoin('estoque as e', 'e.produto_id', 'p.id')
-    .leftJoin('imagens_produtos as ip', function() {
-        this.on('ip.produto_id', '=', 'p.id')
-        .andOn('ip.img_principal', '=', knex.raw('true'))
-    })
+    .leftJoin('categorias as c', 'c.id', 'p.categoria_id')
+    .leftJoin(estoqueTotal(), 'est.produto_id', 'p.id')
 
     aplicarFiltrosProdutos(query, filtros)
 
-    return query
+    return query.orderBy('p.id', 'asc')
 }
 
 const queryBuscarProdutoPorId = async (produtoId) => {
@@ -36,10 +49,14 @@ const queryBuscarProdutoPorId = async (produtoId) => {
         'p.nome',
         'p.descricao',
         'p.preco',
-        'p.categoria_id' ,
-        knex.raw('COALESCE(e.quantidade, 0) as estoque'),
+        'p.categoria_id',
+        'p.criado_em',
+        'c.nome as categoria_nome',
+        knex.raw('COALESCE(est.estoque, 0) as estoque'),
+        imagemPrincipalSql
     )
-    .leftJoin('estoque as e', 'e.produto_id', 'p.id')
+    .leftJoin('categorias as c', 'c.id', 'p.categoria_id')
+    .leftJoin(estoqueTotal(), 'est.produto_id', 'p.id')
     .where('p.id', produtoId)
     .first()
 
@@ -48,6 +65,8 @@ const queryBuscarProdutoPorId = async (produtoId) => {
     const imagens = await knex('imagens_produtos')
     .select('id', 'url', 'img_principal')
     .where('produto_id', produtoId)
+    .orderBy('img_principal', 'desc')
+    .orderBy('id', 'asc')
 
     return {...produto, imagens}
 }
@@ -59,9 +78,15 @@ const queryBuscaFacilDoProduto = async (produtoId) => {
 }
 
 const queryAtualizarProduto = async (nome, descricao, preco, categoria_id, produtoId) => {
+    const dados = {}
+    if (nome !== undefined) dados.nome = nome
+    if (descricao !== undefined) dados.descricao = descricao
+    if (preco !== undefined) dados.preco = preco
+    if (categoria_id !== undefined) dados.categoria_id = categoria_id
+
     return await knex('produtos')
     .where({id: produtoId})
-    .update({nome, descricao, preco, categoria_id})
+    .update(dados)
     .returning('*')
 }
 

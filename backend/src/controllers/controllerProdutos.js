@@ -10,8 +10,8 @@ const controllerCadastrarProduto = async (req, res) => {
 
     const { nome, descricao, preco, categoria_id } = req.body
 
-    if (!nome || !preco || !categoria_id) {
-        return res.status(400),json({ error: 'Nome, preço e categoria_id são obrigatórios'})
+    if (!nome || !preco) {
+        return res.status(400).json({ error: 'Nome e preco sao obrigatorios'})
     }
 
     try {
@@ -19,21 +19,21 @@ const controllerCadastrarProduto = async (req, res) => {
             const categoriaExistente = await queryBuscarCategoriaPorId(categoria_id)
 
             if (!categoriaExistente) {
-                return res.status(400).json({ error: 'Categoria não existe.'})
+                return res.status(400).json({ error: 'Categoria nao existe.'})
             }
         }
 
         const produtoCadastrado = await queryCadastrarProduto(
-            nome.toLowerCase(), 
-            descricao.toLowerCase(), 
-            preco, 
-            categoria_id
+            nome.toLowerCase(),
+            descricao?.toLowerCase() || null,
+            preco,
+            categoria_id || null
         )
 
         return res.status(201).json({ mensagem: 'Produto cadastrado', produto: produtoCadastrado})
     } catch (error) {
-        console.error("Ocorreu um erro ao cadastrar o usuário:", error)
-        return res.status(500).json({ error: `Erro ao cadastrar usuário: ${error.message}`})
+        console.error("Ocorreu um erro ao cadastrar o produto:", error)
+        return res.status(500).json({ error: `Erro ao cadastrar produto: ${error.message}`})
     }
 }
 
@@ -47,8 +47,8 @@ const controllerListarProdutos = async (req, res) => {
 
         return res.status(200).json(produtos)
     } catch (error) {
-        console.error("Ocorreu um erro ao listar :", error)
-        return res.status(500).json({ error: `Erro ao cadastrar usuário: ${error.message}`})
+        console.error("Ocorreu um erro ao listar produtos:", error)
+        return res.status(500).json({ error: `Erro ao listar produtos: ${error.message}`})
     }
 }
 
@@ -59,7 +59,7 @@ const controllerObterProduto = async (req, res) => {
         const produto = await queryBuscarProdutoPorId(produtoId)
 
         if (!produto) {
-            return res.status(404).json({ error: 'Produto não encontrado'})
+            return res.status(404).json({ error: 'Produto nao encontrado'})
         }
 
         return res.status(200).json(produto)
@@ -80,12 +80,12 @@ const controllerAtualizarProduto = async (req, res) => {
     const { produtoId } = req.params
 
     if (!produtoId) {
-        return res.status(404).json({ error: 'Produto não encontrado'})
+        return res.status(404).json({ error: 'Produto nao encontrado'})
     }
 
     const { nome, descricao, preco, categoria_id } = req.body
-    
-    if (!nome && !descricao && !preco && categoria_id) {
+
+    if (!nome && !descricao && !preco && categoria_id === undefined) {
         return res.status(400).json({ error: 'Passe algum campo para atualizar.'})
     }
 
@@ -93,12 +93,26 @@ const controllerAtualizarProduto = async (req, res) => {
         const produto = await queryBuscaFacilDoProduto(produtoId)
 
         if (!produto) {
-            return res.status(404).json({ error: 'Produto não encontrado.'})
+            return res.status(404).json({ error: 'Produto nao encontrado.'})
         }
 
-        const produtoAtualizado = await queryAtualizarProduto(nome, descricao, preco, categoria_id, produtoId)
+        if (categoria_id) {
+            const categoriaExistente = await queryBuscarCategoriaPorId(categoria_id)
 
-        return res.status(200).json({ mensagem: 'Produto atualizado', produto: produtoAtualizado})        
+            if (!categoriaExistente) {
+                return res.status(400).json({ error: 'Categoria nao existe.'})
+            }
+        }
+
+        const produtoAtualizado = await queryAtualizarProduto(
+            nome?.toLowerCase(),
+            descricao?.toLowerCase(),
+            preco,
+            categoria_id,
+            produtoId
+        )
+
+        return res.status(200).json({ mensagem: 'Produto atualizado', produto: produtoAtualizado})
     } catch (error) {
         console.error("Erro ao atualizar produto:", error)
         return res.status(500).json({ error: `Erro ao atualizar produto: ${error.message}`})
@@ -115,14 +129,14 @@ const controllerDeletarProduto = async (req, res) => {
     const { produtoId } = req.params
 
     if (!produtoId) {
-        return res.status(404).json({ error: 'Produto não encontrado'})
+        return res.status(404).json({ error: 'Produto nao encontrado'})
     }
 
     try {
         const produto = await queryBuscaFacilDoProduto(produtoId)
 
         if (!produto) {
-            return res.status(404).json({ error: 'Produto não encontrado'})
+            return res.status(404).json({ error: 'Produto nao encontrado'})
         }
 
         await queryDeletarProduto(produtoId)

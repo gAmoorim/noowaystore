@@ -24,14 +24,40 @@ export const useToast = () => useContext(ToastCtx)
 
 // ===== AUTH =====
 const AuthCtx = createContext(null)
+
+function getTipoFromToken(token) {
+  if (!token) return null
+
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) return null
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
+    return JSON.parse(atob(padded))?.tipo || null
+  } catch {
+    return null
+  }
+}
+
+function normalizeUser(user, token) {
+  const tipo = user?.tipo || getTipoFromToken(token)
+  return user && tipo ? { ...user, tipo } : user
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('nws_user') || 'null'))
   const [token, setToken] = useState(() => localStorage.getItem('nws_token') || null)
+  const [user, setUser] = useState(() => {
+    const savedToken = localStorage.getItem('nws_token')
+    const savedUser = JSON.parse(localStorage.getItem('nws_user') || 'null')
+    return normalizeUser(savedUser, savedToken)
+  })
 
   const setAuth = (token, user) => {
-    setToken(token); setUser(user)
+    const normalizedUser = normalizeUser(user, token)
+    setToken(token); setUser(normalizedUser)
     localStorage.setItem('nws_token', token)
-    localStorage.setItem('nws_user', JSON.stringify(user))
+    localStorage.setItem('nws_user', JSON.stringify(normalizedUser))
   }
   const logout = () => {
     setToken(null); setUser(null)

@@ -31,12 +31,6 @@ const controllerCriarEstoque = async (req,res) => {
 }
 
 const controllerListarEstoque = async (req, res) => {
-    const usuarioLogado = req.usuario
-
-    if (usuarioLogado.tipo !== 'admin') {
-        return res.status(403).json({ error: 'Acesso negado'})
-    }
-
     try {
         const estoques = await queryListarEstoque()
 

@@ -33,7 +33,7 @@ routers.put('/produtos/:produtoId', auth, controllerAtualizarProduto)
 routers.delete('/produtos/:produtoId', auth, controllerDeletarProduto)
 
 routers.post('/estoque', auth, controllerCriarEstoque)
-routers.get('/estoque', auth, controllerListarEstoque)
+routers.get('/estoque', controllerListarEstoque)
 routers.put('/estoque/:estoqueId', auth, controllerAtualizarEstoque)
 
 routers.post('/pedidos', auth, controllerCriarPedido)
@@ -48,7 +48,7 @@ routers.put('/enderecos/:enderecoId', auth, controllerAtualizarEndereco)
 routers.delete('/endereco/:enderecoId', auth, controllerDeletarEndereco)
 
 routers.post('/produtos/:produtoId/imagens', auth, upload.single('imagem'), controllerAdicionarImagemProduto)
-routers.get('/produtos/:produtoId/imagens', auth, controllerListarImagensProdutos)
+routers.get('/produtos/:produtoId/imagens', controllerListarImagensProdutos)
 routers.delete('/produtos/imagens/:imagemId', auth, controllerDeletarImagemProduto)
 
 module.exports = routers

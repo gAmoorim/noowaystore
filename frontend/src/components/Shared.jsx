@@ -25,6 +25,7 @@ export function ShoeIcon({ size = 'md' }) {
 export function ProductCard({ product, index = 0 }) {
   const navigate = useNavigate()
   const fmt = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',')
+  const image = product.imagem || product.img_principal || product.imagens?.[0]?.url
   const isNew = product.criado_em && new Date(product.criado_em) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
   return (
@@ -33,7 +34,7 @@ export function ProductCard({ product, index = 0 }) {
       style={{
         borderRight: '1px solid var(--border)',
         borderBottom: '1px solid var(--border)',
-        padding: '28px 22px',
+        padding: '28px 22px 58px',
         cursor: 'pointer',
         transition: 'background .2s',
         position: 'relative',
@@ -54,8 +55,8 @@ export function ProductCard({ product, index = 0 }) {
         : isNew ? <div style={badgeStyle('#1C1C1C')}>Novo</div> : null}
 
       <div style={{ width: '100%', aspectRatio: '4/3', background: '#EDEAE4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
-        {product.img_principal
-          ? <img src={product.img_principal} alt={product.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {image
+          ? <img src={image} alt={product.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : <ShoeIcon size="sm" />}
       </div>
 
@@ -70,7 +71,7 @@ export function ProductCard({ product, index = 0 }) {
           : <span style={{ fontSize: 15, fontWeight: 500 }}>{fmt(product.preco)}</span>}
       </div>
 
-      <div className="pc-cta" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--black)', color: '#fff', opacity: 0, transition: 'opacity .2s', padding: '11px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', textAlign: 'center' }}>
+      <div className="pc-cta" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 38, background: 'var(--black)', color: '#fff', opacity: 0, transition: 'opacity .2s', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         Ver Produto
       </div>
 
@@ -153,10 +154,11 @@ function SearchOverlay({ onClose }) {
     setQ(val)
     if (!val.trim()) { setResults([]); return }
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/produtos`)
+      const params = new URLSearchParams({ nome: val })
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/produtos?${params}`)
       const data = await res.json()
       const list = Array.isArray(data) ? data : (data.produtos || [])
-      setResults(list.filter(p => p.nome.toLowerCase().includes(val.toLowerCase())).slice(0, 7))
+      setResults(list.slice(0, 7))
     } catch {}
   }
 
@@ -172,7 +174,7 @@ function SearchOverlay({ onClose }) {
             {results.map(p => (
               <div key={p.id} onClick={() => { navigate(`/produto/${p.id}`); onClose() }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 24px', cursor: 'pointer', borderBottom: '1px solid var(--border)', transition: 'background .2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--cream)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
                 <div style={{ width: 56, height: 40, background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                  {p.img_principal ? <img src={p.img_principal} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShoeIcon />}
+                  {p.imagem || p.img_principal ? <img src={p.imagem || p.img_principal} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShoeIcon />}
                 </div>
                 <div>
                   <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 17 }}>{p.nome}</div>

@@ -32,7 +32,8 @@ const controllerLoginUsuario = async (req,res) => {
         const dadosUsuario = {
             id: usuario.id,
             nome: usuario.nome,
-            email: usuario.email
+            email: usuario.email,
+            tipo: usuario.tipo
         }
         
         return res.status(200).json({

@@ -316,13 +316,24 @@ function Produtos({ toast }) {
 function ImagensModal({ prod, onClose, toast }) {
   const [imgs, setImgs] = useState([])
   const [url, setUrl] = useState('')
+  const [file, setFile] = useState(null)
   const [principal, setPrincipal] = useState(false)
   const load = () => api.getImagensProduto(prod.id).then(d => setImgs(Array.isArray(d) ? d : [])).catch(() => {})
   useEffect(() => { load() }, [])
 
   const add = async () => {
-    if (!url) { toast('URL obrigatória', 'e'); return }
-    try { await api.addImagemProduto(prod.id, { url, img_principal: principal }); setUrl(''); setPrincipal(false); toast('Imagem adicionada!', 's'); load() }
+    if (!url && !file) { toast('Escolha uma imagem ou informe uma URL', 'e'); return }
+    try {
+      if (file) {
+        const formData = new FormData()
+        formData.append('imagem', file)
+        formData.append('img_principal', principal)
+        await api.addImagemProduto(prod.id, formData)
+      } else {
+        await api.addImagemProduto(prod.id, { url, img_principal: principal })
+      }
+      setUrl(''); setFile(null); setPrincipal(false); toast('Imagem adicionada!', 's'); load()
+    }
     catch(e) { toast(e.message, 'e') }
   }
   const del = async id => {
@@ -345,8 +356,10 @@ function ImagensModal({ prod, onClose, toast }) {
         {!imgs.length && <div style={{ gridColumn: '1/-1', color: 'var(--a-muted)', fontSize: 13 }}>Nenhuma imagem cadastrada.</div>}
       </div>
       <div style={{ borderTop: '1px solid var(--a-border)', paddingTop: 16 }}>
-        <label style={S.fl}>URL da Imagem</label>
-        <input style={{ ...S.fi, marginBottom: 10 }} placeholder="https://..." value={url} onChange={e => setUrl(e.target.value)} />
+        <label style={S.fl}>Arquivo da Imagem</label>
+        <input style={{ ...S.fi, marginBottom: 10 }} type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+        <label style={S.fl}>Ou URL da Imagem</label>
+        <input style={{ ...S.fi, marginBottom: 10 }} placeholder="https://..." value={url} onChange={e => setUrl(e.target.value)} disabled={!!file} />
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--a-muted)', marginBottom: 14, cursor: 'pointer' }}>
           <input type="checkbox" checked={principal} onChange={e => setPrincipal(e.target.checked)} /> Imagem principal
         </label>

@@ -28,12 +28,13 @@ export default function ProdutoDetalhe() {
       getImagensProduto(id).catch(() => []),
       getEstoque().catch(() => [])
     ]).then(([prod, imgs, allEst]) => {
+      const productImages = Array.isArray(imgs) && imgs.length ? imgs : (prod.imagens || [])
       setProduct(prod)
-      setImages(Array.isArray(imgs) ? imgs : [])
+      setImages(productImages)
       const est = (Array.isArray(allEst) ? allEst : []).filter(e => e.produto_id === Number(id))
       setEstoque(est)
-      const principal = (Array.isArray(imgs) ? imgs : []).find(i => i.img_principal) || imgs?.[0]
-      setMainImg(principal?.url || null)
+      const principal = productImages.find(i => i.img_principal) || productImages[0]
+      setMainImg(principal?.url || prod.imagem || null)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [id])
@@ -48,7 +49,9 @@ export default function ProdutoDetalhe() {
   }
 
   const currentEst = resolveEst(selSize, selColor)
-  const totalQty = estoque.reduce((s, e) => s + e.quantidade, 0)
+  const totalQty = estoque.length
+    ? estoque.reduce((s, e) => s + e.quantidade, 0)
+    : Number(product?.estoque || 0)
 
   const handleAdd = () => {
     if (sizes.length && !selSize) { toast('Selecione um tamanho', 'e'); return }
