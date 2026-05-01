@@ -6,10 +6,10 @@ import { useAuth, useToast } from '../context/AppContext'
 function AuthLayout({ visual, children }) {
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 68px)' }}>
-      <div style={{ flex: 1, background: 'var(--black)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 60 }}>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 60, fontWeight: 300, color: 'rgba(255,255,255,.12)', letterSpacing: '.05em', lineHeight: 1.1, fontStyle: 'italic', textAlign: 'center' }}>{visual}</div>
+      <div style={{ flex: 1, background: 'var(--auth-visual-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 60 }}>
+        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 60, fontWeight: 300, color: 'var(--auth-visual-text)', letterSpacing: '.05em', lineHeight: 1.1, fontStyle: 'italic', textAlign: 'center' }}>{visual}</div>
       </div>
-      <div style={{ width: 480, display: 'flex', alignItems: 'center', padding: '60px 56px', borderLeft: '1px solid var(--border)' }}>
+      <div style={{ width: 480, display: 'flex', alignItems: 'center', padding: '60px 56px', borderLeft: '1px solid var(--border)', background: 'var(--auth-panel-bg)', color: 'var(--auth-heading)' }}>
         <div style={{ width: '100%' }}>{children}</div>
       </div>
     </div>
@@ -38,8 +38,8 @@ export function Login() {
 
   return (
     <AuthLayout visual={<>Bem-vindo<br />de volta,<br />fashionista.</>}>
-      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, marginBottom: 8 }}>Entrar</h1>
-      <p style={{ fontSize: 14, color: 'var(--mid)', marginBottom: 40 }}>Acesse sua conta Noo Way Store</p>
+      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, marginBottom: 8, color: 'var(--auth-heading)' }}>Entrar</h1>
+      <p style={{ fontSize: 14, color: 'var(--auth-copy)', marginBottom: 40 }}>Acesse sua conta Noo Way Store</p>
       <div className="fg">
         <label className="fl">E-mail</label>
         <input className="fi" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
@@ -51,9 +51,9 @@ export function Login() {
       <button className="btn-p" style={{ width: '100%', justifyContent: 'center', marginTop: 8 }} disabled={loading} onClick={handleSubmit}>
         {loading ? 'Entrando...' : 'Entrar'}
       </button>
-      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: 'var(--mid)' }}>
+      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: 'var(--auth-copy)' }}>
         Não tem conta?{' '}
-        <span style={{ color: 'var(--char)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/cadastro')}>Cadastre-se</span>
+        <span style={{ color: 'var(--accent-l)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/cadastro')}>Cadastre-se</span>
       </div>
     </AuthLayout>
   )
@@ -80,8 +80,8 @@ export function Cadastro() {
 
   return (
     <AuthLayout visual={<>Sua jornada<br />começa<br />agora.</>}>
-      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, marginBottom: 8 }}>Criar Conta</h1>
-      <p style={{ fontSize: 14, color: 'var(--mid)', marginBottom: 40 }}>Junte-se à comunidade Noo Way Store</p>
+      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 38, fontWeight: 300, marginBottom: 8, color: 'var(--auth-heading)' }}>Criar Conta</h1>
+      <p style={{ fontSize: 14, color: 'var(--auth-copy)', marginBottom: 40 }}>Junte-se à comunidade Noo Way Store</p>
       <div className="fg">
         <label className="fl">Nome completo *</label>
         <input className="fi" placeholder="Seu nome" value={form.nome} onChange={set('nome')} />
@@ -103,9 +103,9 @@ export function Cadastro() {
       <button className="btn-p" style={{ width: '100%', justifyContent: 'center', marginTop: 8 }} disabled={loading} onClick={handleSubmit}>
         {loading ? 'Criando...' : 'Criar Conta'}
       </button>
-      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: 'var(--mid)' }}>
+      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: 'var(--auth-copy)' }}>
         Já tem conta?{' '}
-        <span style={{ color: 'var(--char)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/login')}>Entrar</span>
+        <span style={{ color: 'var(--accent-l)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/login')}>Entrar</span>
       </div>
     </AuthLayout>
   )

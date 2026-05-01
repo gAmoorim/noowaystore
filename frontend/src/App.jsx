@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, CartProvider, ToastProvider, useAuth } from './context/AppContext'
+import { AuthProvider, CartProvider, ThemeProvider, ToastProvider, useAuth } from './context/AppContext'
 import { Navbar } from './components/Shared'
 import Home from './pages/Home'
 import Produtos from './pages/Produtos'
@@ -46,11 +46,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <ToastProvider>
-      <AuthProvider>
-        <CartProvider>
-          <AppRoutes />
-        </CartProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <AppRoutes />
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ToastProvider>
   )
 }

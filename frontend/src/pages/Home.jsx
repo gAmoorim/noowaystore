@@ -74,16 +74,16 @@ export default function Home() {
       </div>
 
       {/* CATEGORIES FEATURE */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'var(--char)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'var(--category-bg)' }}>
         {[
           { num: '01', name: 'Sandálias & Rasteiras', q: 'Sandália' },
           { num: '02', name: 'Tênis & Esportivos', q: 'Tênis' },
           { num: '03', name: 'Botas & Coturnos', q: 'Bota' },
         ].map(({ num, name, q }, i) => (
-          <div key={num} onClick={() => navigate(`/produtos?cat=${q}`)} style={{ padding: '52px 44px', cursor: 'pointer', borderRight: i < 2 ? '1px solid rgba(255,255,255,.08)' : 'none', transition: 'background .2s' }} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.04)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
-            <div style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,.35)', marginBottom: 12 }}>Categoria {num}</div>
-            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 300, color: '#fff', marginBottom: 16 }}>{name}</div>
-            <div style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,.35)' }}>Explorar →</div>
+          <div key={num} onClick={() => navigate(`/produtos?cat=${q}`)} style={{ padding: '52px 44px', cursor: 'pointer', borderRight: i < 2 ? '1px solid var(--category-border)' : 'none', transition: 'background .2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--category-hover)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
+            <div style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--category-muted)', marginBottom: 12 }}>Categoria {num}</div>
+            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 300, color: 'var(--category-heading)', marginBottom: 16 }}>{name}</div>
+            <div style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--category-muted)' }}>Explorar →</div>
           </div>
         ))}
       </div>

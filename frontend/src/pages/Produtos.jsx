@@ -71,7 +71,7 @@ export default function Produtos() {
       <div style={{ padding: '18px 52px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--border)', background: 'var(--warm)', position: 'sticky', top: 68, zIndex: 50 }}>
         {[{ id: null, nome: 'Todos' }, ...cats].map(c => (
           <button key={c.id ?? 'all'} onClick={() => setActiveCat(c.id)}
-            style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: activeCat === c.id ? 'var(--black)' : 'none', color: activeCat === c.id ? '#fff' : 'var(--mid)', border: `1px solid ${activeCat === c.id ? 'var(--black)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
+            style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: activeCat === c.id ? 'var(--cta-bg)' : 'none', color: activeCat === c.id ? 'var(--cta-text)' : 'var(--mid)', border: `1px solid ${activeCat === c.id ? 'var(--cta-bg)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
             {c.nome}
           </button>
         ))}

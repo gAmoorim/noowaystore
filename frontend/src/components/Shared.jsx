@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth, useCart } from '../context/AppContext'
+import { useAuth, useCart, useTheme } from '../context/AppContext'
 
 // ===== SHOE SVG =====
 export function ShoeIcon({ size = 'md' }) {
@@ -54,7 +54,7 @@ export function ProductCard({ product, index = 0 }) {
         ? <div style={badgeStyle('#8B3A2A')}>Promoção</div>
         : isNew ? <div style={badgeStyle('#1C1C1C')}>Novo</div> : null}
 
-      <div style={{ width: '100%', aspectRatio: '4/3', background: '#EDEAE4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
+      <div style={{ width: '100%', aspectRatio: '4/3', background: 'var(--image-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
         {image
           ? <img src={image} alt={product.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : <ShoeIcon size="sm" />}
@@ -71,7 +71,7 @@ export function ProductCard({ product, index = 0 }) {
           : <span style={{ fontSize: 15, fontWeight: 500 }}>{fmt(product.preco)}</span>}
       </div>
 
-      <div className="pc-cta" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 38, background: 'var(--black)', color: '#fff', opacity: 0, transition: 'opacity .2s', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="pc-cta" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 38, background: 'var(--cta-bg)', color: 'var(--cta-text)', opacity: 0, transition: 'opacity .2s', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         Ver Produto
       </div>
 
@@ -82,6 +82,24 @@ export function ProductCard({ product, index = 0 }) {
 
 function badgeStyle(bg) {
   return { position: 'absolute', top: 14, left: 14, background: bg, color: '#fff', fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', padding: '3px 10px' }
+}
+
+function ThemeIcon({ theme }) {
+  if (theme === 'dark') {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+        <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M12 2.8v2.7M12 18.5v2.7M4.8 4.8l1.9 1.9M17.3 17.3l1.9 1.9M2.8 12h2.7M18.5 12h2.7M4.8 19.2l1.9-1.9M17.3 6.7l1.9-1.9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <path d="M18.7 14.8A7.6 7.6 0 0 1 9.2 5.3a7.9 7.9 0 1 0 9.5 9.5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M17.7 3.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4Z" fill="currentColor" />
+    </svg>
+  )
 }
 
 // ===== MODAL =====
@@ -102,6 +120,7 @@ export function Modal({ open, onClose, title, children, width = 520 }) {
 export function Navbar() {
   const { user, logout } = useAuth()
   const { count } = useCart()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
 
@@ -124,6 +143,16 @@ export function Navbar() {
 
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <button style={navBtnStyle} onClick={() => setSearchOpen(true)} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>⌕ Buscar</button>
+          <button
+            style={{ ...navBtnStyle, minWidth: 56, justifyContent: 'center' }}
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo noturno'}
+            aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo noturno'}
+            onMouseEnter={e=>e.currentTarget.style.color='var(--black)'}
+            onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}
+          >
+            <ThemeIcon theme={theme} />
+          </button>
           {user ? (
             <>
               <button style={navBtnStyle} onClick={() => navigate('/conta')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>{user.nome?.split(' ')[0] || 'Conta'}</button>
@@ -195,10 +224,10 @@ export function Footer() {
   const navigate = useNavigate()
   const col = { }
   return (
-    <footer style={{ background: 'var(--black)', color: 'rgba(255,255,255,.45)', padding: '64px 52px 32px' }}>
+    <footer style={{ background: 'var(--footer-bg)', color: 'var(--footer-text)', padding: '64px 52px 32px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 44, marginBottom: 52 }}>
         <div>
-          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, letterSpacing: '.12em', textTransform: 'uppercase', color: '#fff', marginBottom: 12 }}>Noo Way Store</div>
+          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--footer-strong)', marginBottom: 12 }}>Noo Way Store</div>
           <p style={{ fontSize: 13, lineHeight: 1.75, maxWidth: 220 }}>Calçados com personalidade para quem não segue tendências — as cria.</p>
         </div>
         {[

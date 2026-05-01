@@ -22,6 +22,25 @@ export function ToastProvider({ children }) {
 }
 export const useToast = () => useContext(ToastCtx)
 
+// ===== THEME =====
+const ThemeCtx = createContext(null)
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(() => localStorage.getItem('nws_theme') || 'light')
+
+  useEffect(() => {
+    if (theme === 'dark') document.documentElement.dataset.theme = 'dark'
+    else delete document.documentElement.dataset.theme
+    localStorage.setItem('nws_theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+
+  return <ThemeCtx.Provider value={{ theme, toggleTheme }}>
+    {children}
+  </ThemeCtx.Provider>
+}
+export const useTheme = () => useContext(ThemeCtx)
+
 // ===== AUTH =====
 const AuthCtx = createContext(null)
 
