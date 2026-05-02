@@ -37,7 +37,7 @@ export default function Home() {
       {/* HERO */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: 'calc(100vh - 68px)' }}>
         <div style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px 72px' }}>
-          <p style={{ fontSize: 11, letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--mid)', marginBottom: 28 }}>Coleção 2025 · Calçados &amp; Sandálias</p>
+          <p style={{ fontSize: 11, letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--mid)', marginBottom: 28 }}>Coleção 2026 · Calçados &amp; Sandálias</p>
           <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 76, fontWeight: 300, lineHeight: 1.02, color: 'var(--black)', marginBottom: 28 }}>
             Pisando<br />com <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>Estilo</em><br />e Atitude
           </h1>

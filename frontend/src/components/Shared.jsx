@@ -247,7 +247,7 @@ export function Footer() {
           </div>
         ))}
       </div>
-      <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 24, textAlign: 'center', fontSize: 12 }}>© 2025 Noo Way Store · Todos os direitos reservados</div>
+      <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 24, textAlign: 'center', fontSize: 12 }}>© 2026 Noo Way Store · Todos os direitos reservados</div>
     </footer>
   )
 }
