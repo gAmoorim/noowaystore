@@ -1,0 +1,1 @@
+const app = require('../backend/src/app')
