@@ -1,23 +1,19 @@
-const path = require('path')
-const fs = require('fs')
 const multer = require('multer')
+const cloudinary = require('cloudinary').v2
+const { CloudinaryStorage } = require('multer-storage-cloudinary')
 
-const isVercel = process.env.VERCEL === '1'
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
-let upload
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'noowaystore',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
+  }
+})
 
-if (isVercel) {
-  upload = multer({ storage: multer.memoryStorage() })
-} else {
-  const uploadDir = path.resolve(__dirname, '..', 'uploads')
-  fs.mkdirSync(uploadDir, { recursive: true })
-
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-  })
-
-  upload = multer({ storage })
-}
-
-module.exports = upload
+module.exports = multer({ storage })

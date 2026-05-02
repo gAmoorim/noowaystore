@@ -1,6 +1,6 @@
+const cloudinary = require('cloudinary').v2
 const { queryAdicionarImagemProduto, queryDesmarcarImagemPrincipal, queryListarImagensProduto, queryBuscarImagemPeloId, queryDeletarImagem } = require("../database/querys/queryImagens")
 const { queryBuscaFacilDoProduto } = require("../database/querys/queryProdutos")
-const { deletarArquivo, deletarArquivoPorUrl } = require("../utils/deletarImagem")
 
 const controllerAdicionarImagemProduto = async (req, res) => {
     const { produtoId } = req.params
@@ -17,14 +17,14 @@ const controllerAdicionarImagemProduto = async (req, res) => {
         const principal = img_principal === true || img_principal === 'true'
 
         if (tipoUsuario !== 'admin') {
-            if (req.file) await deletarArquivo(req.file)
+            if (req.file) await cloudinary.uploader.destroy(req.file.filename)
             return res.status(403).json({ error: 'Acesso negado'})
         }
 
         const produto = await queryBuscaFacilDoProduto(produtoId)
 
         if (!produto) {
-            if (req.file) await deletarArquivo(req.file)
+            if (req.file) await cloudinary.uploader.destroy(req.file.filename)
             return res.status(404).json({ error: 'Produto nao encontrado'})
         }
 
@@ -32,9 +32,7 @@ const controllerAdicionarImagemProduto = async (req, res) => {
             return res.status(400).json({ error: 'Imagem nao enviada'})
         }
 
-        const urlImagem = req.file
-            ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-            : url
+        const urlImagem = req.file ? req.file.path : url
 
         if (principal) {
             await queryDesmarcarImagemPrincipal(produtoId)
@@ -48,7 +46,7 @@ const controllerAdicionarImagemProduto = async (req, res) => {
         })
 
     } catch (error) {
-        if (req.file) await deletarArquivo(req.file)
+        if (req.file) await cloudinary.uploader.destroy(req.file.filename)
         console.error('Erro ao adicionar a imagem', error)
         return res.status(500).json({error: `ocorreu um erro ao adicionar a imagem ${error.message}`})
     }
@@ -94,9 +92,12 @@ const controllerDeletarImagemProduto = async (req, res) => {
             return res.status(404).json({ error: 'Imagem nao encontrada'})
         }
 
-        await queryDeletarImagem(imagemId)
+        const urlParts = imagem.url.split('/')
+        const fileName = urlParts[urlParts.length - 1].split('.')[0]
+        const publicId = `noowaystore/${fileName}`
 
-        await deletarArquivoPorUrl(imagem.url)
+        await cloudinary.uploader.destroy(publicId)
+        await queryDeletarImagem(imagemId)
 
         return res.status(200).json({ mensagem: 'Imagem deletada'})
     } catch (error) {
