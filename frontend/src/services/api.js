@@ -56,7 +56,7 @@ export const getItensPedido = id => http.get(`/pedidos/${id}/itens`)
 export const getEnderecos = () => http.get('/enderecos')
 export const createEndereco = body => http.post('/enderecos', body)
 export const updateEndereco = (id, body) => http.put(`/enderecos/${id}`, body)
-export const deleteEndereco = id => http.delete(`/endereco/${id}`)
+export const deleteEndereco = id => http.delete(`/enderecos/${id}`)
 
 // IMAGES
 export const getImagensProduto = async id => list(await http.get(`/produtos/${id}/imagens`), 'imagens')
