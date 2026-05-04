@@ -18,9 +18,9 @@ export default function Conta() {
   if (!user) return null
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', minHeight: 'calc(100vh - 68px)' }}>
+    <div className="account-layout" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', minHeight: 'calc(100vh - 68px)' }}>
       {/* Sidebar */}
-      <div style={{ borderRight: '1px solid var(--border)', padding: '48px 32px' }}>
+      <div className="account-sidebar" style={{ borderRight: '1px solid var(--border)', padding: '48px 32px' }}>
         <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 400, marginBottom: 4 }}>{user.nome}</div>
         <div style={{ fontSize: 12, color: 'var(--mid)', marginBottom: 40 }}>{user.email}</div>
         <ul style={{ listStyle: 'none' }}>
@@ -36,7 +36,7 @@ export default function Conta() {
       </div>
 
       {/* Content */}
-      <div style={{ padding: '48px 60px' }}>
+      <div className="account-content" style={{ padding: '48px 60px' }}>
         {tab === 'perfil' && <Perfil user={user} setAuth={setAuth} token={token} toast={toast} />}
         {tab === 'pedidos' && <Pedidos toast={toast} />}
         {tab === 'enderecos' && <Enderecos toast={toast} />}
@@ -178,7 +178,7 @@ function Enderecos({ toast }) {
         <button className="btn-p" onClick={() => setModalOpen(true)}>+ Novo</button>
       </div>
       {!addrs.length ? <p style={{ color: 'var(--mid)' }}>Nenhum endereço cadastrado.</p> : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="address-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {addrs.map(a => (
             <div key={a.id} style={{ border: '1px solid var(--border)', padding: 24 }}>
               <div style={{ fontWeight: 500, marginBottom: 6 }}>{a.logradouro}, {a.numero}</div>
@@ -195,7 +195,7 @@ function Enderecos({ toast }) {
       )}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Endereço">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           {[
             { k: 'logradouro', l: 'Logradouro', p: 'Rua, Av...', col: 2 },
             { k: 'numero', l: 'Número', p: '123', col: 1 },

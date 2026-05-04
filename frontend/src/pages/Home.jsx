@@ -35,18 +35,23 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: 'calc(100vh - 68px)' }}>
-        <div style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px 72px' }}>
-          <p style={{ fontSize: 11, letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--mid)', marginBottom: 28 }}>Coleção 2026 · Calçados &amp; Sandálias</p>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 76, fontWeight: 300, lineHeight: 1.02, color: 'var(--black)', marginBottom: 28 }}>
-            Pisando<br />com <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>Estilo</em><br />e Atitude
+      <div className="home-hero" style={{ display: 'grid', gridTemplateColumns: 'minmax(360px,.9fr) minmax(0,1.1fr)', minHeight: 'calc(100vh - 68px)', background: 'var(--warm)', borderBottom: '1px solid var(--border)' }}>
+        <div className="home-hero-copy" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '84px 72px', position: 'relative', overflow: 'hidden' }}>
+          <div className="home-hero-kicker" style={{ fontSize: 11, letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 24 }}>Coleção 2026 · Noo Way Store</div>
+          <h1 className="home-hero-title" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 82, fontWeight: 300, lineHeight: .96, color: 'var(--black)', marginBottom: 30 }}>
+            Calçados<br />com <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>presença</em><br />no detalhe
           </h1>
           <p style={{ fontSize: 15, color: 'var(--mid)', lineHeight: 1.75, maxWidth: 360, marginBottom: 44 }}>
-            Do clássico ao ousado — encontre o calçado que conta a sua história com qualidade premium.
+            Uma seleção de tênis, chinelos e sandálias pensada para unir conforto, personalidade e acabamento premium.
           </p>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div className="home-hero-actions" style={{ display: 'flex', gap: 16 }}>
             <button className="btn-p" onClick={() => navigate('/produtos')}>Ver Coleção →</button>
             <button className="btn-s" onClick={() => document.getElementById('highlights').scrollIntoView({ behavior: 'smooth' })}>Destaques</button>
+          </div>
+          <div className="home-hero-meta" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18, marginTop: 58, paddingTop: 24, borderTop: '1px solid var(--border)', maxWidth: 520 }}>
+            {['Curadoria urbana', 'Imagens reais', 'Estoque atualizado'].map(item => (
+              <span key={item} style={{ fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--mid)', lineHeight: 1.5 }}>{item}</span>
+            ))}
           </div>
         </div>
 
@@ -55,15 +60,15 @@ export default function Home() {
 
       {/* HIGHLIGHTS */}
       <div id="highlights">
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '64px 52px 28px', borderBottom: '1px solid var(--border)' }}>
+        <div className="section-head" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '64px 52px 28px', borderBottom: '1px solid var(--border)' }}>
           <div>
-            <p style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--mid)', marginBottom: 8 }}>Destaque da Semana</p>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300 }}>Novidades em Foco</h2>
+            <p style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>Destaque da Semana</p>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300 }}>Curadoria em Foco</h2>
           </div>
           <span onClick={() => navigate('/produtos')} style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--mid)', cursor: 'pointer' }}>Ver todos →</span>
         </div>
-        <div style={{ padding: '0 52px 80px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderLeft: '1px solid var(--border)' }}>
+        <div className="section-pad" style={{ padding: '0 52px 80px' }}>
+          <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderLeft: '1px solid var(--border)' }}>
             {products.length ? products.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             )) : Array.from({ length: 4 }).map((_, i) => (
@@ -74,13 +79,13 @@ export default function Home() {
       </div>
 
       {/* CATEGORIES FEATURE */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'var(--category-bg)' }}>
+      <div className="home-categories" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'var(--category-bg)' }}>
         {[
           { num: '01', name: 'Sandálias & Rasteiras', q: 'Sandália' },
           { num: '02', name: 'Tênis & Esportivos', q: 'Tênis' },
           { num: '03', name: 'Botas & Coturnos', q: 'Bota' },
         ].map(({ num, name, q }, i) => (
-          <div key={num} onClick={() => navigate(`/produtos?cat=${q}`)} style={{ padding: '52px 44px', cursor: 'pointer', borderRight: i < 2 ? '1px solid var(--category-border)' : 'none', transition: 'background .2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--category-hover)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
+          <div className="home-category-card" key={num} onClick={() => navigate(`/produtos?cat=${q}`)} style={{ padding: '52px 44px', cursor: 'pointer', borderRight: i < 2 ? '1px solid var(--category-border)' : 'none', transition: 'background .2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--category-hover)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
             <div style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--category-muted)', marginBottom: 12 }}>Categoria {num}</div>
             <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 300, color: 'var(--category-heading)', marginBottom: 16 }}>{name}</div>
             <div style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--category-muted)' }}>Explorar →</div>
@@ -98,8 +103,9 @@ function HeroCarousel({ products, active, onSelect, onOpen }) {
   const product = products[active]
 
   return (
-    <div style={{ background: '#131210', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,rgba(139,58,42,.2),rgba(10,10,10,.82) 48%,#0A0A0A)' }} />
+    <div className="hero-carousel" style={{ background: '#131210', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', borderLeft: '1px solid var(--border)' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,rgba(196,99,62,.24),rgba(10,10,10,.72) 46%,#050505)' }} />
+      <div className="hero-carousel-frame" style={{ position: 'absolute', inset: 42, border: '1px solid rgba(255,255,255,.08)' }} />
 
       {product ? (
         <>
@@ -123,12 +129,12 @@ function HeroCarousel({ products, active, onSelect, onOpen }) {
                   cursor: 'pointer'
                 }}
               >
-                <img src={img} alt={p.nome} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '72px 86px 110px' }} />
+                <img className="hero-carousel-img" src={img} alt={p.nome} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '72px 96px 120px', filter: 'drop-shadow(0 28px 40px rgba(0,0,0,.32))' }} />
               </button>
             )
           })}
 
-          <div style={{ position: 'absolute', left: 48, right: 48, bottom: 40, zIndex: 2, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 28 }}>
+          <div className="hero-carousel-caption" style={{ position: 'absolute', left: 48, right: 48, bottom: 40, zIndex: 2, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 28 }}>
             <div>
               <div style={{ fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 8 }}>{product.categoria_nome || 'Produto'}</div>
               <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 300, color: '#fff', lineHeight: 1.05 }}>{product.nome}</div>

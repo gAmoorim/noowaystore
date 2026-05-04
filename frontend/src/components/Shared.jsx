@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth, useCart, useTheme } from '../context/AppContext'
+import { getProdutos } from '../services/api'
 
 // ===== SHOE SVG =====
 export function ShoeIcon({ size = 'md' }) {
@@ -30,6 +31,7 @@ export function ProductCard({ product, index = 0 }) {
 
   return (
     <div
+      className="product-card"
       onClick={() => navigate(`/produto/${product.id}`)}
       style={{
         borderRight: '1px solid var(--border)',
@@ -54,7 +56,7 @@ export function ProductCard({ product, index = 0 }) {
         ? <div style={badgeStyle('#8B3A2A')}>Promoção</div>
         : isNew ? <div style={badgeStyle('#1C1C1C')}>Novo</div> : null}
 
-      <div style={{ width: '100%', aspectRatio: '4/3', background: 'var(--image-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
+      <div className="product-card-media" style={{ width: '100%', aspectRatio: '4/3', background: 'var(--image-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
         {image
           ? <img src={image} alt={product.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : <ShoeIcon size="sm" />}
@@ -102,6 +104,25 @@ function ThemeIcon({ theme }) {
   )
 }
 
+function CartIcon() {
+  return (
+    <svg className="cart-icon" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <path d="M6.2 7.2h14l-1.6 7.2H8L6.2 4.5H3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9.3 18.8h.1M17.1 18.8h.1" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function LogoutIcon() {
+  return (
+    <svg className="logout-icon" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <path d="M10.4 5.2H6.8a2 2 0 0 0-2 2v9.6a2 2 0 0 0 2 2h3.6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M13 8.2 16.8 12 13 15.8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16.5 12H9.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 // ===== MODAL =====
 export function Modal({ open, onClose, title, children, width = 520 }) {
   if (!open) return null
@@ -131,18 +152,72 @@ export function Navbar() {
     cursor: 'pointer', transition: 'all .2s', display: 'flex', alignItems: 'center', gap: 8
   }
 
+  const navLinkStyle = {
+    fontSize: 12,
+    letterSpacing: '.08em',
+    textTransform: 'uppercase',
+    color: 'var(--mid)',
+    transition: 'color .2s'
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
   return (
     <>
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--warm)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 52px', height: 68 }}>
-        <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, letterSpacing: '.15em', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => navigate('/')}>Noo Way Store</span>
+      <nav className="site-nav" style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--warm)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 52px', height: 68 }}>
+        <span className="site-brand" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, letterSpacing: '.15em', textTransform: 'uppercase', cursor: 'pointer' }} onClick={() => navigate('/')}>Noo Way Store</span>
 
-        <ul style={{ display: 'flex', gap: 36, listStyle: 'none' }}>
-          <li><Link to="/" style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--mid)', transition: 'color .2s' }} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Início</Link></li>
-          <li><Link to="/produtos" style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--mid)', transition: 'color .2s' }} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Produtos</Link></li>
+        <ul className="site-links" style={{ display: 'flex', gap: 36, listStyle: 'none' }}>
+          <li><Link to="/" style={navLinkStyle} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Início</Link></li>
+          <li><Link to="/produtos" style={navLinkStyle} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Produtos</Link></li>
+          <li>
+            <button
+              className="search-link"
+              style={{ ...navLinkStyle, display: 'inline-flex', alignItems: 'center', gap: 7, background: 'none', border: 'none', padding: 0 }}
+              onClick={() => setSearchOpen(true)}
+              onMouseEnter={e=>e.currentTarget.style.color='var(--black)'}
+              onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}
+            >
+              ⌕ Buscar
+            </button>
+          </li>
         </ul>
 
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <button style={navBtnStyle} onClick={() => setSearchOpen(true)} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>⌕ Buscar</button>
+        <div className="site-actions" style={{ display: 'flex', alignItems: 'center' }}>
+          {user ? (
+            <>
+              <button style={navBtnStyle} onClick={() => navigate('/conta')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>{user.nome?.split(' ')[0] || 'Conta'}</button>
+              {user.tipo === 'admin' && <button style={navBtnStyle} onClick={() => navigate('/admin')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>Admin</button>}
+              <button
+                className="logout-btn"
+                style={{ ...navBtnStyle, minWidth: 56, justifyContent: 'center' }}
+                onClick={handleLogout}
+                title="Sair"
+                aria-label="Sair"
+                onMouseEnter={e=>e.currentTarget.style.color='var(--danger)'}
+                onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}
+              >
+                <LogoutIcon />
+              </button>
+            </>
+          ) : (
+            <button style={navBtnStyle} onClick={() => navigate('/login')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>Entrar</button>
+          )}
+          <button
+            className="cart-nav-btn"
+            style={{ ...navBtnStyle, minWidth: 62, justifyContent: 'center', position: 'relative' }}
+            onClick={() => navigate('/carrinho')}
+            title="Carrinho"
+            aria-label={`Carrinho${count > 0 ? ` com ${count} item${count > 1 ? 's' : ''}` : ''}`}
+            onMouseEnter={e=>e.currentTarget.style.color='var(--black)'}
+            onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}
+          >
+            <CartIcon />
+            {count > 0 && <span className="cart-count" style={{ background: 'var(--accent)', color: '#fff', fontSize: 10, minWidth: 17, height: 17, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px' }}>{count}</span>}
+          </button>
           <button
             style={{ ...navBtnStyle, minWidth: 56, justifyContent: 'center' }}
             onClick={toggleTheme}
@@ -152,18 +227,6 @@ export function Navbar() {
             onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}
           >
             <ThemeIcon theme={theme} />
-          </button>
-          {user ? (
-            <>
-              <button style={navBtnStyle} onClick={() => navigate('/conta')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>{user.nome?.split(' ')[0] || 'Conta'}</button>
-              {user.tipo === 'admin' && <button style={navBtnStyle} onClick={() => navigate('/admin')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>Admin</button>}
-            </>
-          ) : (
-            <button style={navBtnStyle} onClick={() => navigate('/login')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>Entrar</button>
-          )}
-          <button style={navBtnStyle} onClick={() => navigate('/carrinho')} onMouseEnter={e=>e.currentTarget.style.color='var(--black)'} onMouseLeave={e=>e.currentTarget.style.color='var(--mid)'}>
-            Carrinho
-            {count > 0 && <span style={{ background: 'var(--accent)', color: '#fff', fontSize: 10, width: 17, height: 17, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{count}</span>}
           </button>
         </div>
       </nav>
@@ -183,16 +246,16 @@ function SearchOverlay({ onClose }) {
     setQ(val)
     if (!val.trim()) { setResults([]); return }
     try {
-      const params = new URLSearchParams({ nome: val })
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/produtos?${params}`)
-      const data = await res.json()
+      const data = await getProdutos({ nome: val })
       const list = Array.isArray(data) ? data : (data.produtos || [])
       setResults(list.slice(0, 7))
-    } catch {}
+    } catch {
+      setResults([])
+    }
   }
 
   return (
-    <div onClick={e => e.target === e.currentTarget && onClose()} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 300, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 120 }}>
+    <div className="search-overlay" onClick={e => e.target === e.currentTarget && onClose()} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 300, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 120 }}>
       <div style={{ background: 'var(--warm)', width: 600, maxWidth: '92vw', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px' }}>
           <span style={{ fontSize: 18, color: 'var(--mid)', marginRight: 12 }}>⌕</span>
@@ -224,8 +287,8 @@ export function Footer() {
   const navigate = useNavigate()
   const col = { }
   return (
-    <footer style={{ background: 'var(--footer-bg)', color: 'var(--footer-text)', padding: '64px 52px 32px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 44, marginBottom: 52 }}>
+    <footer className="site-footer" style={{ background: 'var(--footer-bg)', color: 'var(--footer-text)', padding: '64px 52px 32px' }}>
+      <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 44, marginBottom: 52 }}>
         <div>
           <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--footer-strong)', marginBottom: 12 }}>Noo Way Store</div>
           <p style={{ fontSize: 13, lineHeight: 1.75, maxWidth: 220 }}>Calçados com personalidade para quem não segue tendências — as cria.</p>

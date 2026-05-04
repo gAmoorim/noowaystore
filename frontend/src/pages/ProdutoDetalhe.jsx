@@ -73,12 +73,12 @@ export default function ProdutoDetalhe() {
   if (!product) return <div style={{ padding: 80, textAlign: 'center', color: 'var(--mid)' }}>Produto não encontrado.</div>
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 68px)' }}>
+    <div className="product-detail" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 68px)' }}>
       {/* Gallery */}
-      <div style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 60, position: 'sticky', top: 68, height: 'calc(100vh - 68px)' }}>
+      <div className="product-detail-gallery" style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 60, position: 'sticky', top: 68, height: 'calc(100vh - 68px)' }}>
         <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
           {mainImg
-            ? <img src={mainImg} alt={product.nome} style={{ maxWidth: '100%', maxHeight: 420, objectFit: 'contain' }} />
+            ? <img className="product-detail-img" src={mainImg} alt={product.nome} style={{ maxWidth: '100%', maxHeight: 420, objectFit: 'contain' }} />
             : <ShoeIcon size="lg" />}
         </div>
         {images.length > 1 && (
@@ -94,10 +94,10 @@ export default function ProdutoDetalhe() {
       </div>
 
       {/* Info */}
-      <div style={{ padding: '60px 64px', borderLeft: '1px solid var(--border)', overflowY: 'auto' }}>
+      <div className="product-detail-info" style={{ padding: '60px 64px', borderLeft: '1px solid var(--border)', overflowY: 'auto' }}>
         <span onClick={() => navigate(-1)} style={{ fontSize: 12, color: 'var(--mid)', letterSpacing: '.08em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: 28, display: 'inline-block' }}>← Voltar</span>
         <div style={{ fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--mid)', marginBottom: 10 }}>{product.categoria_nome || 'Calçado'}</div>
-        <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 48, fontWeight: 300, lineHeight: 1.08, marginBottom: 28 }}>{product.nome}</h1>
+        <h1 className="product-detail-title" style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 48, fontWeight: 300, lineHeight: 1.08, marginBottom: 28 }}>{product.nome}</h1>
 
         <div style={{ marginBottom: 32 }}>
           {product.preco_promocional ? (
@@ -123,7 +123,7 @@ export default function ProdutoDetalhe() {
                 const hasStock = estoque.filter(e => e.tamanho === s).some(e => e.quantidade > 0)
                 return (
                   <button key={s} disabled={!hasStock} onClick={() => setSelSize(s === selSize ? null : s)}
-                    style={{ width: 50, height: 50, border: `1px solid ${selSize === s ? 'var(--black)' : 'var(--border)'}`, background: selSize === s ? 'var(--black)' : 'none', color: !hasStock ? 'var(--border)' : selSize === s ? '#fff' : 'var(--char)', fontSize: 13, cursor: hasStock ? 'pointer' : 'not-allowed', textDecoration: !hasStock ? 'line-through' : 'none', transition: 'all .2s' }}>
+                    style={{ width: 50, height: 50, border: `1px solid ${selSize === s ? 'var(--cta-bg)' : 'var(--border)'}`, background: selSize === s ? 'var(--cta-bg)' : 'none', color: !hasStock ? 'var(--border)' : selSize === s ? 'var(--cta-text)' : 'var(--char)', fontSize: 13, cursor: hasStock ? 'pointer' : 'not-allowed', textDecoration: !hasStock ? 'line-through' : 'none', transition: 'all .2s' }}>
                     {s}
                   </button>
                 )
@@ -139,7 +139,7 @@ export default function ProdutoDetalhe() {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {colors.map(c => (
                 <button key={c} onClick={() => setSelColor(c === selColor ? null : c)}
-                  style={{ padding: '8px 18px', border: `1px solid ${selColor === c ? 'var(--black)' : 'var(--border)'}`, background: selColor === c ? 'var(--black)' : 'none', color: selColor === c ? '#fff' : 'var(--char)', fontSize: 12, cursor: 'pointer', transition: 'all .2s' }}>
+                  style={{ padding: '8px 18px', border: `1px solid ${selColor === c ? 'var(--cta-bg)' : 'var(--border)'}`, background: selColor === c ? 'var(--cta-bg)' : 'none', color: selColor === c ? 'var(--cta-text)' : 'var(--char)', fontSize: 12, cursor: 'pointer', transition: 'all .2s' }}>
                   {c}
                 </button>
               ))}

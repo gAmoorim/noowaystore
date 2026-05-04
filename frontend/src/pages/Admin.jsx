@@ -7,11 +7,11 @@ import * as api from '../services/api'
 const S = {
   layout: { display: 'flex', minHeight: '100vh', background: 'var(--a-bg)', color: 'var(--a-text)', fontFamily: "'DM Sans', sans-serif" },
   sidebar: { width: 220, background: 'var(--a-surface)', borderRight: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 100 },
-  main: { marginLeft: 220, flex: 1 },
+  main: { marginLeft: 220, flex: 1, minWidth: 0 },
   topbar: { height: 56, borderBottom: '1px solid var(--a-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', background: 'var(--a-surface)', position: 'sticky', top: 0, zIndex: 50 },
-  page: { padding: 32 },
-  card: { background: 'var(--a-surface)', border: '1px solid var(--a-border)', marginBottom: 24 },
-  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--a-border)' },
+  page: { padding: 32, maxWidth: '100%' },
+  card: { background: 'var(--a-surface)', border: '1px solid var(--a-border)', marginBottom: 24, overflowX: 'auto' },
+  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '18px 24px', borderBottom: '1px solid var(--a-border)' },
   th: { padding: '10px 16px', textAlign: 'left', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--a-muted)', borderBottom: '1px solid var(--a-border)', fontWeight: 400 },
   td: { padding: '12px 16px', fontSize: 13, borderBottom: '1px solid var(--a-border)', verticalAlign: 'middle', color: 'var(--a-text)' },
   fi: { padding: '9px 13px', background: 'var(--a-surface2)', border: '1px solid var(--a-border)', color: 'var(--a-text)', fontFamily: "'DM Sans',sans-serif", fontSize: 13, width: '100%' },
@@ -73,10 +73,10 @@ export default function Admin() {
   const sections = [...new Set(tabs.map(t => t.section))]
 
   return (
-    <div style={S.layout}>
+    <div className="admin-layout" style={S.layout}>
       <style>{'body{background:var(--a-bg)!important}'}</style>
       {/* Sidebar */}
-      <aside style={S.sidebar}>
+      <aside className="admin-sidebar" style={S.sidebar}>
         <div style={{ padding: '24px', borderBottom: '1px solid var(--a-border)' }}>
           <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 17, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--a-text)', marginBottom: 6 }}>Noo Way Store</div>
           <span style={{ fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', color: '#C4633E', background: 'rgba(196,99,62,.12)', padding: '2px 8px' }}>Admin</span>
@@ -100,14 +100,14 @@ export default function Admin() {
       </aside>
 
       {/* Main */}
-      <main style={S.main}>
-        <div style={S.topbar}>
+      <main className="admin-main" style={S.main}>
+        <div className="admin-topbar" style={S.topbar}>
           <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 300, color: 'var(--a-text)' }}>
             {tabs.find(t => t.key === tab)?.label || 'Admin'}
           </div>
           <a href="/" target="_blank" style={{ background: 'none', border: '1px solid var(--a-border)', padding: '6px 14px', fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--a-muted)', textDecoration: 'none', transition: 'all .2s' }}>Ver Loja →</a>
         </div>
-        <div style={S.page}>
+        <div className="admin-page" style={S.page}>
           {tab === 'dashboard' && <Dashboard toast={toast} />}
           {tab === 'produtos' && <Produtos toast={toast} />}
           {tab === 'categorias' && <Categorias toast={toast} />}
@@ -156,7 +156,7 @@ function Dashboard({ toast }) {
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
+      <div className="admin-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
         {statCards.map(s => (
           <div key={s.label} style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderLeft: `3px solid ${s.color}`, padding: 24 }}>
             <div style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--a-muted)', marginBottom: 10 }}>{s.label}</div>
@@ -165,7 +165,7 @@ function Dashboard({ toast }) {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+      <div className="admin-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
         <div style={S.card}>
           <div style={S.cardHead}><span style={{ fontSize: 14, fontWeight: 500, color: 'var(--a-text)' }}>Pedidos por Status</span></div>
           <div style={{ padding: 24 }}>

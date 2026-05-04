@@ -49,7 +49,7 @@ export default function Checkout() {
   return (
     <div>
       {/* Steps bar */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
+      <div className="checkout-steps" style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
         {steps.map((s, i) => (
           <div key={s} style={{ flex: 1, padding: '18px 0', textAlign: 'center', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: step === i + 1 ? 'var(--black)' : step > i + 1 ? 'var(--ok)' : 'var(--mid)', borderBottom: `2px solid ${step === i + 1 ? 'var(--black)' : 'transparent'}`, transition: 'all .3s' }}>
             {step > i + 1 ? `✓ ${s}` : s}
@@ -57,9 +57,9 @@ export default function Checkout() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', minHeight: 'calc(100vh - 68px - 57px)' }}>
+      <div className="checkout-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', minHeight: 'calc(100vh - 68px - 57px)' }}>
         {/* Main */}
-        <div style={{ padding: '48px 52px', borderRight: '1px solid var(--border)' }}>
+        <div className="checkout-main" style={{ padding: '48px 52px', borderRight: '1px solid var(--border)' }}>
 
           {/* STEP 1 */}
           {step === 1 && (
@@ -69,7 +69,7 @@ export default function Checkout() {
                 <>
                   {addresses.length > 0 && (
                     <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
+                      <div className="address-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
                         {addresses.map(a => (
                           <div key={a.id} onClick={() => setSelAddr(a.id)} style={{ border: `1px solid ${selAddr === a.id ? 'var(--black)' : 'var(--border)'}`, padding: 22, cursor: 'pointer', transition: 'border-color .2s' }}>
                             <div style={{ fontWeight: 500, marginBottom: 6 }}>{a.logradouro}, {a.numero}</div>
@@ -114,7 +114,7 @@ export default function Checkout() {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', fontWeight: 500, fontSize: 16 }}>
                 <span>Total</span><span>{fmt(total)}</span>
               </div>
-              <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
+              <div className="action-row" style={{ display: 'flex', gap: 16, marginTop: 16 }}>
                 <button className="btn-s" onClick={() => setStep(1)}>← Voltar</button>
                 <button className="btn-p" onClick={handleConfirm}>Confirmar Pedido →</button>
               </div>
@@ -135,7 +135,7 @@ export default function Checkout() {
         </div>
 
         {/* Sidebar */}
-        <div style={{ padding: '48px 40px', background: 'var(--cream)' }}>
+        <div className="checkout-summary" style={{ padding: '48px 40px', background: 'var(--cream)' }}>
           <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 300, marginBottom: 20 }}>Resumo</div>
           {cart.map(item => (
             <div key={item.estoqueId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
@@ -167,7 +167,7 @@ function AddrForm({ addr, setAddr }) {
     { key: 'cep', label: 'CEP', placeholder: '00000-000', col: 1 },
   ]
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+    <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
       {fields.map(f => (
         <div key={f.key} style={{ gridColumn: f.col === 2 ? '1 / -1' : 'auto' }}>
           <label className="fl">{f.label}</label>

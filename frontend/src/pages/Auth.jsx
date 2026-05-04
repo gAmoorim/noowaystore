@@ -5,11 +5,11 @@ import { useAuth, useToast } from '../context/AppContext'
 
 function AuthLayout({ visual, children }) {
   return (
-    <div style={{ display: 'flex', minHeight: 'calc(100vh - 68px)' }}>
-      <div style={{ flex: 1, background: 'var(--auth-visual-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 60 }}>
+    <div className="auth-layout" style={{ display: 'flex', minHeight: 'calc(100vh - 68px)' }}>
+      <div className="auth-visual" style={{ flex: 1, background: 'var(--auth-visual-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 60 }}>
         <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 60, fontWeight: 300, color: 'var(--auth-visual-text)', letterSpacing: '.05em', lineHeight: 1.1, fontStyle: 'italic', textAlign: 'center' }}>{visual}</div>
       </div>
-      <div style={{ width: 480, display: 'flex', alignItems: 'center', padding: '60px 56px', borderLeft: '1px solid var(--border)', background: 'var(--auth-panel-bg)', color: 'var(--auth-heading)' }}>
+      <div className="auth-panel" style={{ width: 480, display: 'flex', alignItems: 'center', padding: '60px 56px', borderLeft: '1px solid var(--border)', background: 'var(--auth-panel-bg)', color: 'var(--auth-heading)' }}>
         <div style={{ width: '100%' }}>{children}</div>
       </div>
     </div>
@@ -90,7 +90,7 @@ export function Cadastro() {
         <label className="fl">E-mail *</label>
         <input className="fi" type="email" placeholder="seu@email.com" value={form.email} onChange={set('email')} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div className="fg">
           <label className="fl">Telefone</label>
           <input className="fi" placeholder="(85) 9 0000-0000" value={form.telefone} onChange={set('telefone')} />

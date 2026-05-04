@@ -55,7 +55,7 @@ export default function Produtos() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '64px 52px 28px', borderBottom: '1px solid var(--border)' }}>
+      <div className="catalog-head" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '64px 52px 28px', borderBottom: '1px solid var(--border)' }}>
         <div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300 }}>Colecao Completa</h1>
           <p style={{ fontSize: 12, color: 'var(--mid)' }}>{sorted.length} produto{sorted.length !== 1 ? 's' : ''}</p>
@@ -68,7 +68,7 @@ export default function Produtos() {
         </select>
       </div>
 
-      <div style={{ padding: '18px 52px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--border)', background: 'var(--warm)', position: 'sticky', top: 68, zIndex: 50 }}>
+      <div className="catalog-cats" style={{ padding: '18px 52px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--border)', background: 'var(--warm)', position: 'sticky', top: 68, zIndex: 50 }}>
         {[{ id: null, nome: 'Todos' }, ...cats].map(c => (
           <button key={c.id ?? 'all'} onClick={() => setActiveCat(c.id)}
             style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: activeCat === c.id ? 'var(--cta-bg)' : 'none', color: activeCat === c.id ? 'var(--cta-text)' : 'var(--mid)', border: `1px solid ${activeCat === c.id ? 'var(--cta-bg)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
@@ -77,7 +77,7 @@ export default function Produtos() {
         ))}
       </div>
 
-      <div style={{ padding: '18px 52px', display: 'grid', gridTemplateColumns: 'minmax(220px, 1.4fr) repeat(3, minmax(120px, .7fr)) auto', gap: 10, alignItems: 'end', borderBottom: '1px solid var(--border)', background: 'var(--warm)' }}>
+      <div className="catalog-filters" style={{ padding: '18px 52px', display: 'grid', gridTemplateColumns: 'minmax(220px, 1.4fr) repeat(3, minmax(120px, .7fr)) auto', gap: 10, alignItems: 'end', borderBottom: '1px solid var(--border)', background: 'var(--warm)' }}>
         <div>
           <label className="fl">Buscar</label>
           <input className="fi" value={filters.nome} onChange={setFilter('nome')} placeholder="Nome do produto" />
@@ -101,13 +101,13 @@ export default function Produtos() {
         <button className="btn-s" onClick={clearFilters} style={{ height: 42, padding: '0 18px' }}>Limpar</button>
       </div>
 
-      <div style={{ padding: '0 52px 80px' }}>
+      <div className="section-pad" style={{ padding: '0 52px 80px' }}>
         {loading ? (
           <div className="spin-wrap"><div className="spinner" /></div>
         ) : !sorted.length ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--mid)' }}>Nenhum produto encontrado.</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderLeft: '1px solid var(--border)' }}>
+          <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderLeft: '1px solid var(--border)' }}>
             {sorted.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
           </div>
         )}

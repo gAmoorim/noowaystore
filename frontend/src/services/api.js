@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const BASE = import.meta.env.VITE_API_URL
 
 const http = axios.create({ baseURL: BASE })
 
@@ -53,7 +53,7 @@ export const updatePedidoStatus = (id, status) => http.patch(`/pedidos/${id}/sta
 export const getItensPedido = id => http.get(`/pedidos/${id}/itens`)
 
 // ADDRESSES
-export const getEnderecos = () => http.get('/enderecos')
+export const getEnderecos = async () => list(await http.get('/enderecos'), 'enderecos')
 export const createEndereco = body => http.post('/enderecos', body)
 export const updateEndereco = (id, body) => http.put(`/enderecos/${id}`, body)
 export const deleteEndereco = id => http.delete(`/enderecos/${id}`)

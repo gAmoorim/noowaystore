@@ -10,7 +10,7 @@ export default function Carrinho() {
 
   if (!cart.length) {
     return (
-      <div style={{ padding: '80px 52px', textAlign: 'center' }}>
+      <div className="page-pad" style={{ padding: '80px 52px', textAlign: 'center' }}>
         <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300, color: 'var(--mid)', marginBottom: 16 }}>Seu carrinho está vazio</h2>
         <p style={{ color: 'var(--mid)', marginBottom: 32 }}>Explore nossa coleção e encontre o par perfeito.</p>
         <button className="btn-p" onClick={() => navigate('/produtos')}>Ver Produtos</button>
@@ -19,14 +19,14 @@ export default function Carrinho() {
   }
 
   return (
-    <div style={{ padding: '64px 52px' }}>
+    <div className="page-pad" style={{ padding: '64px 52px' }}>
       <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300, marginBottom: 36 }}>Carrinho</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 56 }}>
+      <div className="cart-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 56 }}>
 
         {/* Items */}
         <div style={{ borderTop: '1px solid var(--border)' }}>
           {cart.map(item => (
-            <div key={item.estoqueId} style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 24, padding: '24px 0', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
+            <div className="cart-item" key={item.estoqueId} style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 24, padding: '24px 0', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
               <div style={{ width: 96, height: 68, background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                 {item.imagem ? <img src={item.imagem} alt={item.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShoeIcon />}
               </div>
