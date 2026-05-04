@@ -10,8 +10,8 @@ const queryCriarEndereco = async (usuarioId, logradouroFinal, numero, complement
 
 const queryListarEnderecosUsuarioLogado = async (usuarioId) => {
     return await knex('enderecos')
+    .select('id', 'logradouro', 'numero', 'complemento', 'cidade', 'estado', 'cep')
     .where({usuario_id: usuarioId})
-    .returning('id', 'logradouro', 'numero', 'complemento', 'cidade', 'estado', 'cep')
 }
 
 const queryAtualizarEndereco = async (enderecoId, cep, numero, complemento, logradouro, cidade, estado) => {

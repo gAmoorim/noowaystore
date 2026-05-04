@@ -8,7 +8,7 @@ const app = express()
 app.use(express.json())
 
 app.use(cors({
-  origin: ['https://noowaystore.vercel.app', 'http://localhost:3000'],
+  origin: ['https://noowaystore.vercel.app', 'http://localhost:5173'],
   credentials: false
 }))
 
