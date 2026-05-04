@@ -111,8 +111,8 @@ Crie um arquivo .env dentro de backend/:
 ```
 PORT=3000
 
-DB_HOST=seu_host_neon
-DB_PORT=5432
+DB_HOST=seu_host
+DB_PORT=sua_port
 DB_USER=seu_usuario
 DB_PWD=sua_senha
 DB_NAME=seu_banco
