@@ -54,6 +54,7 @@ export default function Admin() {
   const toast = useToast()
   const navigate = useNavigate()
   const [tab, setTab] = useState('dashboard')
+  const [quickAction, setQuickAction] = useState(null)
 
   useEffect(() => {
     if (!user || user.tipo !== 'admin') navigate('/login')
@@ -71,6 +72,18 @@ export default function Admin() {
   ]
 
   const sections = [...new Set(tabs.map(t => t.section))]
+
+  const runQuickAction = (action) => {
+    const targetTabs = {
+      'novo-produto': 'produtos',
+      'nova-categoria': 'categorias',
+      'gerenciar-estoque': 'estoque',
+      'ver-pedidos': 'pedidos'
+    }
+
+    setQuickAction(action)
+    setTab(targetTabs[action] || 'dashboard')
+  }
 
   return (
     <div className="admin-layout" style={S.layout}>
@@ -108,10 +121,10 @@ export default function Admin() {
           <a href="/" target="_blank" style={{ background: 'none', border: '1px solid var(--a-border)', padding: '6px 14px', fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--a-muted)', textDecoration: 'none', transition: 'all .2s' }}>Ver Loja →</a>
         </div>
         <div className="admin-page" style={S.page}>
-          {tab === 'dashboard' && <Dashboard toast={toast} />}
-          {tab === 'produtos' && <Produtos toast={toast} />}
-          {tab === 'categorias' && <Categorias toast={toast} />}
-          {tab === 'estoque' && <Estoque toast={toast} />}
+          {tab === 'dashboard' && <Dashboard toast={toast} onQuickAction={runQuickAction} />}
+          {tab === 'produtos' && <Produtos toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
+          {tab === 'categorias' && <Categorias toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
+          {tab === 'estoque' && <Estoque toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
           {tab === 'pedidos' && <Pedidos toast={toast} />}
           {tab === 'usuarios' && <Usuarios toast={toast} />}
         </div>
@@ -121,7 +134,7 @@ export default function Admin() {
 }
 
 // ===== DASHBOARD =====
-function Dashboard({ toast }) {
+function Dashboard({ toast, onQuickAction }) {
   const [stats, setStats] = useState({ pedidos: 0, entregues: 0, produtos: 0, usuarios: 0 })
   const [orders, setOrders] = useState([])
   const [statusCounts, setStatusCounts] = useState({})
@@ -187,8 +200,13 @@ function Dashboard({ toast }) {
         <div style={S.card}>
           <div style={S.cardHead}><span style={{ fontSize: 14, fontWeight: 500, color: 'var(--a-text)' }}>Ações Rápidas</span></div>
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {['Novo Produto', 'Nova Categoria', 'Gerenciar Estoque', 'Ver Pedidos'].map(l => (
-              <ABtnO key={l} style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }}>{l}</ABtnO>
+            {[
+              { label: 'Novo Produto', action: 'novo-produto' },
+              { label: 'Nova Categoria', action: 'nova-categoria' },
+              { label: 'Gerenciar Estoque', action: 'gerenciar-estoque' },
+              { label: 'Ver Pedidos', action: 'ver-pedidos' },
+            ].map(({ label, action }) => (
+              <ABtnO key={action} onClick={() => onQuickAction(action)} style={{ justifyContent: 'flex-start', width: '100%', textAlign: 'left' }}>{label}</ABtnO>
             ))}
           </div>
         </div>
@@ -214,7 +232,7 @@ function Dashboard({ toast }) {
 }
 
 // ===== PRODUTOS ADMIN =====
-function Produtos({ toast }) {
+function Produtos({ toast, quickAction, onQuickActionDone }) {
   const [prods, setProds] = useState([])
   const [cats, setCats] = useState([])
   const [loading, setLoading] = useState(true)
@@ -236,6 +254,12 @@ function Produtos({ toast }) {
 
   const openNew = () => { setEditing(null); setForm({ nome: '', preco: '', descricao: '', categoria_id: '' }); setModal(true) }
   const openEdit = p => { setEditing(p); setForm({ nome: p.nome, preco: p.preco, descricao: p.descricao || '', categoria_id: p.categoria_id || '' }); setModal(true) }
+
+  useEffect(() => {
+    if (quickAction !== 'novo-produto') return
+    openNew()
+    onQuickActionDone?.()
+  }, [quickAction])
 
   const save = async () => {
     if (!form.nome || !form.preco) { toast('Nome e preço obrigatórios', 'e'); return }
@@ -370,7 +394,7 @@ function ImagensModal({ prod, onClose, toast }) {
 }
 
 // ===== CATEGORIAS ADMIN =====
-function Categorias({ toast }) {
+function Categorias({ toast, quickAction, onQuickActionDone }) {
   const [cats, setCats] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
@@ -381,6 +405,11 @@ function Categorias({ toast }) {
 
   const openNew = () => { setEditing(null); setNome(''); setModal(true) }
   const openEdit = c => { setEditing(c); setNome(c.nome); setModal(true) }
+  useEffect(() => {
+    if (quickAction !== 'nova-categoria') return
+    openNew()
+    onQuickActionDone?.()
+  }, [quickAction])
   const save = async () => {
     if (!nome.trim()) { toast('Nome obrigatório', 'e'); return }
     try {
@@ -428,7 +457,7 @@ function Categorias({ toast }) {
 }
 
 // ===== ESTOQUE ADMIN =====
-function Estoque({ toast }) {
+function Estoque({ toast, quickAction, onQuickActionDone }) {
   const [est, setEst] = useState([])
   const [prods, setProds] = useState([])
   const [loading, setLoading] = useState(true)
@@ -448,6 +477,12 @@ function Estoque({ toast }) {
 
   const openNew = () => { setEditing(null); setForm({ produto_id: '', tamanho: '', cor: '', quantidade: 0 }); setModal(true) }
   const openEdit = e => { setEditing(e); setForm({ produto_id: e.produto_id, tamanho: e.tamanho || '', cor: e.cor || '', quantidade: e.quantidade }); setModal(true) }
+
+  useEffect(() => {
+    if (quickAction !== 'gerenciar-estoque') return
+    openNew()
+    onQuickActionDone?.()
+  }, [quickAction])
 
   const save = async () => {
     try {
