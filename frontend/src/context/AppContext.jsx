@@ -44,7 +44,7 @@ export const useTheme = () => useContext(ThemeCtx)
 // ===== AUTH =====
 const AuthCtx = createContext(null)
 
-function getTipoFromToken(token) {
+function getPayloadFromToken(token) {
   if (!token) return null
 
   try {
@@ -53,10 +53,24 @@ function getTipoFromToken(token) {
 
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
-    return JSON.parse(atob(padded))?.tipo || null
+    return JSON.parse(atob(padded))
   } catch {
     return null
   }
+}
+
+function getTipoFromToken(token) {
+  return getPayloadFromToken(token)?.tipo || null
+}
+
+function isTokenExpired(token) {
+  const exp = getPayloadFromToken(token)?.exp
+  return !exp || exp * 1000 <= Date.now()
+}
+
+function clearStoredAuth() {
+  localStorage.removeItem('nws_token')
+  localStorage.removeItem('nws_user')
 }
 
 function normalizeUser(user, token) {
@@ -65,9 +79,22 @@ function normalizeUser(user, token) {
 }
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('nws_token') || null)
+  const [token, setToken] = useState(() => {
+    const savedToken = localStorage.getItem('nws_token')
+    if (!savedToken || isTokenExpired(savedToken)) {
+      clearStoredAuth()
+      return null
+    }
+
+    return savedToken
+  })
   const [user, setUser] = useState(() => {
     const savedToken = localStorage.getItem('nws_token')
+    if (!savedToken || isTokenExpired(savedToken)) {
+      clearStoredAuth()
+      return null
+    }
+
     const savedUser = JSON.parse(localStorage.getItem('nws_user') || 'null')
     return normalizeUser(savedUser, savedToken)
   })
@@ -80,8 +107,7 @@ export function AuthProvider({ children }) {
   }
   const logout = () => {
     setToken(null); setUser(null)
-    localStorage.removeItem('nws_token')
-    localStorage.removeItem('nws_user')
+    clearStoredAuth()
   }
 
   return <AuthCtx.Provider value={{ user, token, setAuth, logout, isAdmin: user?.tipo === 'admin' }}>
