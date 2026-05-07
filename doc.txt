@@ -211,9 +211,9 @@ controllerDeletarImagem (DELETE /produtos/imagens/:id)
 🔹 PROMOÇÕES
 
 controllerCriarPromocao (POST /promocoes)
-# - Verificar se usuário logado é admin
 # - Body: produto_id, preco_promocional, começa_em, termina_em
 # - Validar campos obrigatorios
+# - Verificar se usuário logado é admin
 # - Verificar se produto existe
 # - Criar promoção
 # - Retornar 201 + promoção criada
@@ -228,6 +228,8 @@ controllerAtualizarPromocao (PATCH /promocoes/:id)
 # - Validar campos enviados
 # - Atualizar promoção
 # - Retornar 200 + promoção atualizada
+
+PATCH  /promocoes/:id/status   ativa/desativa promoção
 
 controllerDeletarPromocao (DELETE /promocoes/:id)
 # - Verificar se usuário logado é admin

@@ -10,6 +10,7 @@ const { controllerAdicionarImagemProduto, controllerListarImagensProdutos, contr
 
 const auth = require('../middlewares/auth')
 const upload = require('../config/upload')
+const { controllerCriarPromocao, controllerListarPromocoes } = require('../controllers/controllerPromocoes')
 
 const routers = express()
 
@@ -50,5 +51,8 @@ routers.delete('/endereco/:enderecoId', auth, controllerDeletarEndereco)
 routers.post('/produtos/:produtoId/imagens', auth, upload.single('imagem'), controllerAdicionarImagemProduto)
 routers.get('/produtos/:produtoId/imagens', controllerListarImagensProdutos)
 routers.delete('/produtos/imagens/:imagemId', auth, controllerDeletarImagemProduto)
+
+routers.post('/promocoes', auth, controllerCriarPromocao)
+routers.get('/promocoes', controllerListarPromocoes)
 
 module.exports = routers
