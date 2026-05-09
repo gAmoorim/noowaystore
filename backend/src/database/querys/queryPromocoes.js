@@ -35,8 +35,37 @@ const queryListarPromocoesAtivas = async () => {
     .orderBy('pr.id', 'desc')
 }
 
+const queryAtualizarPromocao = async (promocaoId, preco_promocional, começa_em, termina_em) => {
+  return await knex('promocoes')
+  .where({id: promocaoId})
+  .update({preco_promocional, começa_em, termina_em})
+  .returning('*')
+}
+
+const queryBuscarPromocaoPorId = async (promocaoId) => {
+  return await knex('promocoes')
+  .where({id: promocaoId})
+  .first()
+}
+
+const queryAtualizarStatusPromocao = async (promocaoId, ativa) => {
+  return await knex('promocoes')
+  .where({ id: promocaoId})
+  .update({ativa})
+  .returning('*')
+}
+
+const queryDeletarPromocao = async (promocaoId) => {
+  return await knex('promocoes')
+  .where({ id: promocaoId})
+  .del()
+}
 
 module.exports = {
     queryCriarPromocao,
-    queryListarPromocoesAtivas
+    queryListarPromocoesAtivas,
+    queryAtualizarPromocao,
+    queryBuscarPromocaoPorId,
+    queryAtualizarStatusPromocao,
+    queryDeletarPromocao
 }

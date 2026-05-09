@@ -224,12 +224,18 @@ controllerListarPromocoes (GET /promocoes)
 # - Retornar 200 + lista
 
 controllerAtualizarPromocao (PATCH /promocoes/:id)
-# - Verificar se usuário logado é admin
 # - Validar campos enviados
+# - Verificar se usuário logado é admin
 # - Atualizar promoção
 # - Retornar 200 + promoção atualizada
 
-PATCH  /promocoes/:id/status   ativa/desativa promoção
+controllerAtualizarStatusPromocao (PATCH /promocoes/:id/status)
+# - Body: ativa (true ou false)
+# - verificar se usuário logado é admin
+# - validar se body.ativa é booleano de verdade
+# - verificar se a promoção existe
+# - atualizar somente o campo ativa
+# - Retornar 200 + promoção atualizada
 
 controllerDeletarPromocao (DELETE /promocoes/:id)
 # - Verificar se usuário logado é admin
