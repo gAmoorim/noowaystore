@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { getProdutos, getCategorias } from '../services/api'
+import { getProdutos, getCategorias, getPromocoes } from '../services/api'
 import { ProductCard } from '../components/Shared'
 
 const cleanParams = params => Object.fromEntries(
@@ -13,8 +13,10 @@ export default function Produtos() {
   const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState('')
   const [filters, setFilters] = useState({ nome: '', preco_min: '', preco_max: '', disponivel: '' })
+  const [saleOnly, setSaleOnly] = useState(false)
   const [searchParams] = useSearchParams()
   const catQuery = searchParams.get('cat')
+  const offersQuery = searchParams.get('ofertas') === '1'
   const [activeCat, setActiveCat] = useState(null)
 
   const setFilter = key => e => setFilters(prev => ({ ...prev, [key]: e.target.value }))
@@ -26,17 +28,40 @@ export default function Produtos() {
   }, [])
 
   useEffect(() => {
+    setSaleOnly(offersQuery)
+    if (offersQuery) setActiveCat(null)
+  }, [offersQuery])
+
+  useEffect(() => {
+    if (offersQuery) return
     if (catQuery && cats.length) {
       const found = cats.find(c => c.nome.toLowerCase().includes(catQuery.toLowerCase()))
       setActiveCat(found?.id || null)
     }
-  }, [catQuery, cats])
+  }, [catQuery, cats, offersQuery])
 
   useEffect(() => {
     setLoading(true)
-    getProdutos(cleanParams({ ...filters, categoria_id: activeCat }))
-      .then(data => {
-        setProducts(Array.isArray(data) ? data : (data.produtos || []))
+    Promise.all([
+      getProdutos(cleanParams({ ...filters, categoria_id: activeCat })),
+      getPromocoes().catch(() => [])
+    ])
+      .then(([data, promocoes]) => {
+        const list = Array.isArray(data) ? data : (data.produtos || [])
+        const promos = Array.isArray(promocoes) ? promocoes : []
+        const merged = list.map(product => {
+          const promo = promos.find(p => Number(p.produto_id) === Number(product.id))
+          return promo && !product.preco_promocional
+            ? {
+              ...product,
+              promocao_id: promo.id,
+              preco_promocional: promo.preco_promocional,
+              promocao_comeca_em: promo.começa_em,
+              promocao_termina_em: promo.termina_em
+            }
+            : product
+        })
+        setProducts(merged)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -46,9 +71,11 @@ export default function Produtos() {
   if (sort === 'asc') sorted = sorted.sort((a, b) => a.preco - b.preco)
   if (sort === 'desc') sorted = sorted.sort((a, b) => b.preco - a.preco)
   if (sort === 'az') sorted = sorted.sort((a, b) => a.nome.localeCompare(b.nome))
+  if (saleOnly) sorted = sorted.filter(p => p.preco_promocional)
 
   const clearFilters = () => {
     setActiveCat(null)
+    setSaleOnly(false)
     setFilters({ nome: '', preco_min: '', preco_max: '', disponivel: '' })
     setSort('')
   }
@@ -70,11 +97,15 @@ export default function Produtos() {
 
       <div className="catalog-cats" style={{ padding: '18px 52px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--border)', background: 'var(--warm)', position: 'sticky', top: 68, zIndex: 50 }}>
         {[{ id: null, nome: 'Todos' }, ...cats].map(c => (
-          <button key={c.id ?? 'all'} onClick={() => setActiveCat(c.id)}
-            style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: activeCat === c.id ? 'var(--cta-bg)' : 'none', color: activeCat === c.id ? 'var(--cta-text)' : 'var(--mid)', border: `1px solid ${activeCat === c.id ? 'var(--cta-bg)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
+          <button key={c.id ?? 'all'} onClick={() => { setSaleOnly(false); setActiveCat(c.id) }}
+            style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: !saleOnly && activeCat === c.id ? 'var(--cta-bg)' : 'none', color: !saleOnly && activeCat === c.id ? 'var(--cta-text)' : 'var(--mid)', border: `1px solid ${!saleOnly && activeCat === c.id ? 'var(--cta-bg)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
             {c.nome}
           </button>
         ))}
+        <button onClick={() => { setSaleOnly(prev => !prev); setActiveCat(null) }}
+          style={{ padding: '7px 18px', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: saleOnly ? 'var(--accent)' : 'none', color: saleOnly ? '#fff' : 'var(--accent)', border: `1px solid ${saleOnly ? 'var(--accent)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all .2s' }}>
+          Ofertas
+        </button>
       </div>
 
       <div className="catalog-filters" style={{ padding: '18px 52px', display: 'grid', gridTemplateColumns: 'minmax(220px, 1.4fr) repeat(3, minmax(120px, .7fr)) auto', gap: 10, alignItems: 'end', borderBottom: '1px solid var(--border)', background: 'var(--warm)' }}>

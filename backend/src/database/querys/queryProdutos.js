@@ -15,6 +15,28 @@ const imagemPrincipalSql = knex.raw(`(
     LIMIT 1
 ) as imagem`)
 
+const promocaoAtiva = () => knex('promocoes as pr')
+    .distinctOn('pr.produto_id')
+    .select(
+        'pr.produto_id',
+        'pr.id as promocao_id',
+        'pr.preco_promocional',
+        'pr.começa_em as promocao_comeca_em',
+        'pr.termina_em as promocao_termina_em'
+    )
+    .where('pr.ativa', true)
+    .where('pr.começa_em', '<=', knex.fn.now())
+    .where(function () {
+        this.whereNull('pr.termina_em')
+            .orWhere('pr.termina_em', '>=', knex.fn.now())
+    })
+    .orderBy([
+        { column: 'pr.produto_id', order: 'asc' },
+        { column: 'pr.começa_em', order: 'desc' },
+        { column: 'pr.id', order: 'desc' }
+    ])
+    .as('promo')
+
 const queryCadastrarProduto = async (nome, descricao, preco, categoria_id) => {
     return await knex('produtos')
     .insert({nome, descricao, preco, categoria_id})
@@ -32,10 +54,15 @@ const queryListarProdutos = async (filtros) => {
         'p.criado_em',
         'c.nome as categoria_nome',
         knex.raw('COALESCE(est.estoque, 0) as estoque'),
-        imagemPrincipalSql
+        imagemPrincipalSql,
+        'promo.promocao_id',
+        'promo.preco_promocional',
+        'promo.promocao_comeca_em',
+        'promo.promocao_termina_em'
     )
     .leftJoin('categorias as c', 'c.id', 'p.categoria_id')
     .leftJoin(estoqueTotal(), 'est.produto_id', 'p.id')
+    .leftJoin(promocaoAtiva(), 'promo.produto_id', 'p.id')
 
     aplicarFiltrosProdutos(query, filtros)
 
@@ -53,10 +80,15 @@ const queryBuscarProdutoPorId = async (produtoId) => {
         'p.criado_em',
         'c.nome as categoria_nome',
         knex.raw('COALESCE(est.estoque, 0) as estoque'),
-        imagemPrincipalSql
+        imagemPrincipalSql,
+        'promo.promocao_id',
+        'promo.preco_promocional',
+        'promo.promocao_comeca_em',
+        'promo.promocao_termina_em'
     )
     .leftJoin('categorias as c', 'c.id', 'p.categoria_id')
     .leftJoin(estoqueTotal(), 'est.produto_id', 'p.id')
+    .leftJoin(promocaoAtiva(), 'promo.produto_id', 'p.id')
     .where('p.id', produtoId)
     .first()
 

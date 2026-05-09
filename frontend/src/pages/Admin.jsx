@@ -66,6 +66,7 @@ export default function Admin() {
     { key: 'dashboard', icon: '◈', label: 'Dashboard', section: 'Principal' },
     { key: 'pedidos', icon: '◎', label: 'Pedidos', section: 'Principal' },
     { key: 'produtos', icon: '▣', label: 'Produtos', section: 'Catálogo' },
+    { key: 'promocoes', icon: '%', label: 'Ofertas', section: 'Catálogo' },
     { key: 'categorias', icon: '⊞', label: 'Categorias', section: 'Catálogo' },
     { key: 'estoque', icon: '⊟', label: 'Estoque', section: 'Catálogo' },
     { key: 'usuarios', icon: '◉', label: 'Usuários', section: 'Clientes' },
@@ -76,6 +77,7 @@ export default function Admin() {
   const runQuickAction = (action) => {
     const targetTabs = {
       'novo-produto': 'produtos',
+      'nova-promocao': 'promocoes',
       'nova-categoria': 'categorias',
       'gerenciar-estoque': 'estoque',
       'ver-pedidos': 'pedidos'
@@ -123,6 +125,7 @@ export default function Admin() {
         <div className="admin-page" style={S.page}>
           {tab === 'dashboard' && <Dashboard toast={toast} onQuickAction={runQuickAction} />}
           {tab === 'produtos' && <Produtos toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
+          {tab === 'promocoes' && <Promocoes toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
           {tab === 'categorias' && <Categorias toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
           {tab === 'estoque' && <Estoque toast={toast} quickAction={quickAction} onQuickActionDone={() => setQuickAction(null)} />}
           {tab === 'pedidos' && <Pedidos toast={toast} />}
@@ -202,6 +205,7 @@ function Dashboard({ toast, onQuickAction }) {
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               { label: 'Novo Produto', action: 'novo-produto' },
+              { label: 'Nova Oferta', action: 'nova-promocao' },
               { label: 'Nova Categoria', action: 'nova-categoria' },
               { label: 'Gerenciar Estoque', action: 'gerenciar-estoque' },
               { label: 'Ver Pedidos', action: 'ver-pedidos' },
@@ -290,7 +294,7 @@ function Produtos({ toast, quickAction, onQuickActionDone }) {
         </div>
         {loading ? <ASpinner /> : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={S.th}>Nome</th><th style={S.th}>Categoria</th><th style={S.th}>Preço</th><th style={S.th}>Promoção</th><th style={S.th}>Ações</th></tr></thead>
+            <thead><tr><th style={S.th}>Nome</th><th style={S.th}>Categoria</th><th style={S.th}>Preço</th><th style={S.th}>Oferta</th><th style={S.th}>Ações</th></tr></thead>
             <tbody>
               {filtered.map(p => (
                 <tr key={p.id}>
@@ -390,6 +394,191 @@ function ImagensModal({ prod, onClose, toast }) {
         <ABtnP onClick={add}>Adicionar Imagem</ABtnP>
       </div>
     </AModal>
+  )
+}
+
+// ===== PROMOCOES ADMIN =====
+function Promocoes({ toast, quickAction, onQuickActionDone }) {
+  const [promos, setPromos] = useState([])
+  const [prods, setProds] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [modal, setModal] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [form, setForm] = useState({ produto_id: '', preco_promocional: '', começa_em: '', termina_em: '', ativa: true })
+  const fmt = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',')
+  const dateValue = v => v ? new Date(v).toISOString().slice(0, 10) : ''
+  const set = k => e => setForm(p => ({ ...p, [k]: k === 'ativa' ? e.target.checked : e.target.value }))
+
+  const load = () => {
+    setLoading(true)
+    Promise.all([api.getPromocoes(), api.getProdutos()])
+      .then(([promocoes, produtos]) => {
+        setPromos(Array.isArray(promocoes) ? promocoes : [])
+        setProds(Array.isArray(produtos) ? produtos : (produtos.produtos || []))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const openNew = () => {
+    setEditing(null)
+    setForm({ produto_id: '', preco_promocional: '', começa_em: '', termina_em: '', ativa: true })
+    setModal(true)
+  }
+
+  const openEdit = promo => {
+    setEditing(promo)
+    setForm({
+      produto_id: promo.produto_id || '',
+      preco_promocional: promo.preco_promocional || '',
+      começa_em: dateValue(promo.começa_em),
+      termina_em: dateValue(promo.termina_em),
+      ativa: promo.ativa !== false
+    })
+    setModal(true)
+  }
+
+  useEffect(() => {
+    if (quickAction !== 'nova-promocao') return
+    openNew()
+    onQuickActionDone?.()
+  }, [quickAction])
+
+  const save = async () => {
+    if (!form.produto_id || !form.preco_promocional || !form.começa_em) {
+      toast('Produto, preço promocional e início são obrigatórios', 'e')
+      return
+    }
+
+    const body = {
+      produto_id: Number(form.produto_id),
+      preco_promocional: Number(form.preco_promocional),
+      começa_em: form.começa_em,
+      termina_em: form.termina_em || null,
+      ativa: form.ativa
+    }
+
+    try {
+      if (editing) {
+        await api.updatePromocao(editing.id, body)
+        if (editing.ativa !== form.ativa) await api.updatePromocaoStatus(editing.id, form.ativa)
+      } else {
+        await api.createPromocao(body)
+      }
+      setModal(false)
+      toast('Oferta salva!', 's')
+      load()
+    } catch (e) {
+      toast(e.message, 'e')
+    }
+  }
+
+  const toggleStatus = async promo => {
+    try {
+      await api.updatePromocaoStatus(promo.id, !promo.ativa)
+      toast(!promo.ativa ? 'Oferta ativada' : 'Oferta desativada', 's')
+      load()
+    } catch (e) {
+      toast(e.message, 'e')
+    }
+  }
+
+  const del = async id => {
+    if (!confirm('Excluir oferta?')) return
+    try {
+      await api.deletePromocao(id)
+      toast('Oferta excluída.', 'i')
+      load()
+    } catch (e) {
+      toast(e.message, 'e')
+    }
+  }
+
+  return (
+    <div>
+      <div style={S.card}>
+        <div style={S.cardHead}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--a-text)' }}>Ofertas Ativas</span>
+          <ABtnP onClick={openNew}>+ Nova Oferta</ABtnP>
+        </div>
+        {loading ? <ASpinner /> : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={S.th}>Produto</th>
+                <th style={S.th}>Preço Original</th>
+                <th style={S.th}>Preço Promocional</th>
+                <th style={S.th}>Período</th>
+                <th style={S.th}>Status</th>
+                <th style={S.th}>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {promos.map(promo => (
+                <tr key={promo.id}>
+                  <td style={{ ...S.td, fontWeight: 500 }}>{promo.produto_nome || `Produto #${promo.produto_id}`}</td>
+                  <td style={{ ...S.td, color: 'var(--a-muted)' }}>{fmt(promo.preco)}</td>
+                  <td style={{ ...S.td, color: '#C4633E', fontWeight: 500 }}>{fmt(promo.preco_promocional)}</td>
+                  <td style={{ ...S.td, color: 'var(--a-muted)' }}>
+                    {dateValue(promo.começa_em).split('-').reverse().join('/')} até {promo.termina_em ? dateValue(promo.termina_em).split('-').reverse().join('/') : 'sem fim'}
+                  </td>
+                  <td style={S.td}><StatusBadge status={promo.ativa ? 'ativa' : 'inativa'} /></td>
+                  <td style={S.td}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <ABtnO onClick={() => openEdit(promo)}>Editar</ABtnO>
+                      <ABtnO onClick={() => toggleStatus(promo)}>{promo.ativa ? 'Desativar' : 'Ativar'}</ABtnO>
+                      <ABtnO onClick={() => del(promo.id)} danger>Excluir</ABtnO>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!promos.length && (
+                <tr>
+                  <td style={{ ...S.td, color: 'var(--a-muted)' }} colSpan="6">Nenhuma oferta ativa encontrada.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <AModal open={modal} onClose={() => setModal(false)} title={editing ? 'Editar Oferta' : 'Nova Oferta'}>
+        <div style={{ display: 'grid', gap: 14 }}>
+          <div>
+            <label style={S.fl}>Produto *</label>
+            <select style={S.fi} value={form.produto_id} onChange={set('produto_id')} disabled={!!editing}>
+              <option value="">Selecione...</option>
+              {prods.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div>
+              <label style={S.fl}>Preço Promocional *</label>
+              <input style={S.fi} type="number" step="0.01" min="0" value={form.preco_promocional} onChange={set('preco_promocional')} />
+            </div>
+            <label style={{ display: 'flex', alignItems: 'end', gap: 8, color: 'var(--a-muted)', fontSize: 12, paddingBottom: 10 }}>
+              <input type="checkbox" checked={form.ativa} onChange={set('ativa')} /> Oferta ativa
+            </label>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div>
+              <label style={S.fl}>Começa em *</label>
+              <input style={S.fi} type="date" value={form.começa_em} onChange={set('começa_em')} />
+            </div>
+            <div>
+              <label style={S.fl}>Termina em</label>
+              <input style={S.fi} type="date" value={form.termina_em} onChange={set('termina_em')} />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--a-border)' }}>
+          <ABtnO onClick={() => setModal(false)}>Cancelar</ABtnO>
+          <ABtnP onClick={save}>Salvar Oferta</ABtnP>
+        </div>
+      </AModal>
+    </div>
   )
 }
 

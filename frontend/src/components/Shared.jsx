@@ -53,7 +53,7 @@ export function ProductCard({ product, index = 0 }) {
       }}
     >
       {product.preco_promocional
-        ? <div style={badgeStyle('#8B3A2A')}>Promoção</div>
+        ? <div style={badgeStyle('#8B3A2A')}>Oferta</div>
         : isNew ? <div style={badgeStyle('#1C1C1C')}>Novo</div> : null}
 
       <div className="product-card-media" style={{ width: '100%', aspectRatio: '4/3', background: 'var(--image-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, overflow: 'hidden' }}>
@@ -173,6 +173,7 @@ export function Navbar() {
         <ul className="site-links" style={{ display: 'flex', gap: 36, listStyle: 'none' }}>
           <li><Link to="/" style={navLinkStyle} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Início</Link></li>
           <li><Link to="/produtos" style={navLinkStyle} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Produtos</Link></li>
+          <li><Link to="/produtos?ofertas=1" style={navLinkStyle} onMouseEnter={e=>e.target.style.color='var(--black)'} onMouseLeave={e=>e.target.style.color='var(--mid)'}>Ofertas</Link></li>
           <li>
             <button
               className="search-link"
@@ -294,7 +295,7 @@ export function Footer() {
           <p style={{ fontSize: 13, lineHeight: 1.75, maxWidth: 220 }}>Calçados com personalidade para quem não segue tendências — as cria.</p>
         </div>
         {[
-          { title: 'Loja', links: [{ l: 'Todos os Produtos', to: '/produtos' }, { l: 'Sandálias', to: '/produtos?cat=Sandália' }, { l: 'Tênis', to: '/produtos?cat=Tênis' }, { l: 'Botas', to: '/produtos?cat=Bota' }] },
+          { title: 'Loja', links: [{ l: 'Todos os Produtos', to: '/produtos' }, { l: 'Ofertas', to: '/produtos?ofertas=1' }, { l: 'Sandálias', to: '/produtos?cat=Sandália' }, { l: 'Tênis', to: '/produtos?cat=Tênis' }, { l: 'Botas', to: '/produtos?cat=Bota' }] },
           { title: 'Conta', links: [{ l: 'Minha Conta', to: '/conta' }, { l: 'Meus Pedidos', to: '/conta?tab=pedidos' }, { l: 'Endereços', to: '/conta?tab=enderecos' }] },
           { title: 'Contato', links: [{ l: 'contato@noowaystore.com', to: '#' }, { l: '(85) 9 9999-0000', to: '#' }, { l: '@noowaystore', to: '#' }] },
         ].map(({ title, links }) => (

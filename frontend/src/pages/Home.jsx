@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getProdutos } from '../services/api'
+import { getProdutos, getPromocoes } from '../services/api'
 import { ProductCard, Footer } from '../components/Shared'
 
 const productImage = product => product?.imagem || product?.img_principal || product?.imagens?.[0]?.url
@@ -10,11 +10,28 @@ export default function Home() {
   const [heroIndex, setHeroIndex] = useState(0)
   const navigate = useNavigate()
   const heroProducts = products.filter(productImage).slice(0, 4)
+  const offerProducts = products.filter(p => p.preco_promocional).slice(0, 4)
 
   useEffect(() => {
-    getProdutos().then(data => {
+    Promise.all([
+      getProdutos(),
+      getPromocoes().catch(() => [])
+    ]).then(([data, promocoes]) => {
       const list = Array.isArray(data) ? data : (data.produtos || [])
-      setProducts(list.slice(0, 8))
+      const promos = Array.isArray(promocoes) ? promocoes : []
+      const merged = list.map(product => {
+        const promo = promos.find(p => Number(p.produto_id) === Number(product.id))
+        return promo && !product.preco_promocional
+          ? {
+            ...product,
+            promocao_id: promo.id,
+            preco_promocional: promo.preco_promocional,
+            promocao_comeca_em: promo.começa_em,
+            promocao_termina_em: promo.termina_em
+          }
+          : product
+      })
+      setProducts(merged.slice(0, 8))
     }).catch(() => {})
   }, [])
 
@@ -57,6 +74,24 @@ export default function Home() {
 
         <HeroCarousel products={heroProducts} active={heroIndex} onSelect={setHeroIndex} onOpen={id => navigate(`/produto/${id}`)} />
       </div>
+
+      {/* OFFERS */}
+      {offerProducts.length > 0 && (
+        <div id="offers">
+          <div className="section-head" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '64px 52px 28px', borderBottom: '1px solid var(--border)', background: 'var(--cream)' }}>
+            <div>
+              <p style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>Ofertas Ativas</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 44, fontWeight: 300 }}>Preços em Destaque</h2>
+            </div>
+            <span onClick={() => navigate('/produtos?ofertas=1')} style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--mid)', cursor: 'pointer' }}>Ver ofertas →</span>
+          </div>
+          <div className="section-pad" style={{ padding: '0 52px 72px', background: 'var(--cream)' }}>
+            <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderLeft: '1px solid var(--border)' }}>
+              {offerProducts.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* HIGHLIGHTS */}
       <div id="highlights">

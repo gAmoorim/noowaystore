@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getProduto, getImagensProduto, getEstoque } from '../services/api'
+import { getProduto, getImagensProduto, getEstoque, getPromocoes } from '../services/api'
 import { useCart, useToast } from '../context/AppContext'
 import { ShoeIcon } from '../components/Shared'
 
@@ -26,15 +26,26 @@ export default function ProdutoDetalhe() {
     Promise.all([
       getProduto(id),
       getImagensProduto(id).catch(() => []),
-      getEstoque().catch(() => [])
-    ]).then(([prod, imgs, allEst]) => {
+      getEstoque().catch(() => []),
+      getPromocoes().catch(() => [])
+    ]).then(([prod, imgs, allEst, promocoes]) => {
+      const activePromo = (Array.isArray(promocoes) ? promocoes : []).find(p => Number(p.produto_id) === Number(id))
+      const productWithPromo = activePromo && !prod.preco_promocional
+        ? {
+          ...prod,
+          promocao_id: activePromo.id,
+          preco_promocional: activePromo.preco_promocional,
+          promocao_comeca_em: activePromo.começa_em,
+          promocao_termina_em: activePromo.termina_em
+        }
+        : prod
       const productImages = Array.isArray(imgs) && imgs.length ? imgs : (prod.imagens || [])
-      setProduct(prod)
+      setProduct(productWithPromo)
       setImages(productImages)
       const est = (Array.isArray(allEst) ? allEst : []).filter(e => e.produto_id === Number(id))
       setEstoque(est)
       const principal = productImages.find(i => i.img_principal) || productImages[0]
-      setMainImg(principal?.url || prod.imagem || null)
+      setMainImg(principal?.url || productWithPromo.imagem || null)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [id])

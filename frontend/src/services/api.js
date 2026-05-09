@@ -62,3 +62,10 @@ export const deleteEndereco = id => http.delete(`/enderecos/${id}`)
 export const getImagensProduto = async id => list(await http.get(`/produtos/${id}/imagens`), 'imagens')
 export const addImagemProduto = (id, body) => http.post(`/produtos/${id}/imagens`, body)
 export const deleteImagemProduto = id => http.delete(`/produtos/imagens/${id}`)
+
+// PROMOTIONS
+export const getPromocoes = async () => list(await http.get('/promocoes'), 'promocoes')
+export const createPromocao = body => http.post('/promocoes', body)
+export const updatePromocao = (id, body) => http.put(`/promocoes/${id}`, body)
+export const updatePromocaoStatus = (id, ativa) => http.patch(`/promocoes/${id}/status`, { ativa })
+export const deletePromocao = id => http.delete(`/promocoes/${id}`)
