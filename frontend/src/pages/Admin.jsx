@@ -219,11 +219,15 @@ function Dashboard({ toast, onQuickAction }) {
       <div style={S.card}>
         <div style={S.cardHead}><span style={{ fontSize: 14, fontWeight: 500, color: 'var(--a-text)' }}>Últimos Pedidos</span></div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead><tr><th style={S.th}>Pedido</th><th style={S.th}>Data</th><th style={S.th}>Status</th></tr></thead>
+          <thead><tr><th style={S.th}>Pedido</th><th style={S.th}>Cliente</th><th style={S.th}>Data</th><th style={S.th}>Status</th></tr></thead>
           <tbody>
             {orders.map(o => (
               <tr key={o.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
                 <td style={S.td}>#{o.id}</td>
+                <td style={S.td}>
+                  <div style={{ fontWeight: 500 }}>{o.usuario_nome || 'Cliente não encontrado'}</div>
+                  <div style={{ color: 'var(--a-muted)', fontSize: 12 }}>{o.usuario_email || ''}</div>
+                </td>
                 <td style={{ ...S.td, color: 'var(--a-muted)' }}>{new Date(o.criado_em).toLocaleDateString('pt-BR')}</td>
                 <td style={S.td}><StatusBadge status={o.status} /></td>
               </tr>
@@ -750,7 +754,14 @@ function Pedidos({ toast }) {
   const [filter, setFilter] = useState('')
   const [itemsModal, setItemsModal] = useState(null)
   const [items, setItems] = useState([])
+  const [orderDetail, setOrderDetail] = useState(null)
+  const [itemsLoading, setItemsLoading] = useState(false)
   const fmt = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',')
+  const formatEndereco = o => {
+    if (!o?.logradouro) return 'Endereço não informado'
+    return `${o.logradouro}, ${o.numero || 's/n'}${o.complemento ? ` - ${o.complemento}` : ''} · ${o.cidade || ''}${o.estado ? `/${o.estado}` : ''}${o.cep ? ` · CEP ${o.cep}` : ''}`
+  }
+  const nomeCliente = o => o?.usuario_nome || 'Cliente não encontrado'
 
   const load = () => api.getPedidos().then(d => { setOrders((Array.isArray(d) ? d : (d.pedidos || [])).reverse()); setLoading(false) }).catch(() => setLoading(false))
   useEffect(() => { load() }, [])
@@ -761,9 +772,14 @@ function Pedidos({ toast }) {
   }
 
   const openItems = async (id) => {
-    setItemsModal(id); setItems([])
-    try { const d = await api.getItensPedido(id); setItems(Array.isArray(d) ? d : (d.itens || [])) }
+    setItemsModal(id); setItems([]); setOrderDetail(null); setItemsLoading(true)
+    try {
+      const d = await api.getItensPedido(id)
+      setItems(Array.isArray(d) ? d : (d.itens || []))
+      setOrderDetail(Array.isArray(d) ? orders.find(o => o.id === id) : (d.pedido || orders.find(o => o.id === id)))
+    }
     catch(e) { toast('Erro ao carregar itens', 'e') }
+    finally { setItemsLoading(false) }
   }
 
   const filtered = filter ? orders.filter(o => o.status === filter) : orders
@@ -780,11 +796,17 @@ function Pedidos({ toast }) {
         </div>
         {loading ? <ASpinner /> : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={S.th}>Pedido</th><th style={S.th}>Data</th><th style={S.th}>Status</th><th style={S.th}>Ações</th></tr></thead>
+            <thead><tr><th style={S.th}>Pedido</th><th style={S.th}>Cliente</th><th style={S.th}>Endereço</th><th style={S.th}>Total</th><th style={S.th}>Data</th><th style={S.th}>Status</th><th style={S.th}>Ações</th></tr></thead>
             <tbody>
               {filtered.map(o => (
                 <tr key={o.id}>
                   <td style={{ ...S.td, fontWeight: 500 }}>#{o.id}</td>
+                  <td style={S.td}>
+                    <div style={{ fontWeight: 500 }}>{nomeCliente(o)}</div>
+                    <div style={{ color: 'var(--a-muted)', fontSize: 12 }}>{o.usuario_email || ''}</div>
+                  </td>
+                  <td style={{ ...S.td, color: 'var(--a-muted)', minWidth: 220 }}>{formatEndereco(o)}</td>
+                  <td style={S.td}>{fmt(o.total || 0)}</td>
                   <td style={{ ...S.td, color: 'var(--a-muted)' }}>{new Date(o.criado_em).toLocaleDateString('pt-BR')}</td>
                   <td style={S.td}><StatusBadge status={o.status} /></td>
                   <td style={S.td}>
@@ -802,17 +824,35 @@ function Pedidos({ toast }) {
         )}
       </div>
 
-      <AModal open={!!itemsModal} onClose={() => setItemsModal(null)} title={`Pedido #${itemsModal}`} width={460}>
-        {!items.length ? <ASpinner /> : (
+      <AModal open={!!itemsModal} onClose={() => setItemsModal(null)} title={`Pedido #${itemsModal}`} width={720}>
+        {itemsLoading ? <ASpinner /> : (
           <>
+            {orderDetail && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, paddingBottom: 18, marginBottom: 12, borderBottom: '1px solid var(--a-border)', color: 'var(--a-text)' }}>
+                <div>
+                  <div style={S.fl}>Cliente</div>
+                  <div style={{ fontWeight: 500 }}>{nomeCliente(orderDetail)}</div>
+                  <div style={{ color: 'var(--a-muted)', fontSize: 12 }}>{orderDetail.usuario_email || ''}</div>
+                </div>
+                <div>
+                  <div style={S.fl}>Entrega</div>
+                  <div style={{ color: 'var(--a-muted)', fontSize: 13, lineHeight: 1.5 }}>{formatEndereco(orderDetail)}</div>
+                </div>
+              </div>
+            )}
             {items.map(i => (
-              <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--a-border)', fontSize: 13, color: 'var(--a-text)' }}>
-                <span>{i.produto_nome || `Item #${i.id}`} × {i.quantidade}</span>
+              <div key={i.id} style={{ display: 'grid', gridTemplateColumns: '64px 1fr auto', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--a-border)', fontSize: 13, color: 'var(--a-text)' }}>
+                {i.imagem ? <img src={i.imagem} alt={i.produto_nome} style={{ width: 64, height: 64, objectFit: 'cover', background: 'var(--a-surface2)' }} /> : <div style={{ width: 64, height: 64, background: 'var(--a-surface2)', border: '1px solid var(--a-border)' }} />}
+                <div>
+                  <div style={{ fontWeight: 500 }}>{i.produto_nome || `Item #${i.id}`}</div>
+                  <div style={{ color: 'var(--a-muted)', fontSize: 12 }}>Qtd. {i.quantidade}{i.tamanho ? ` · Tam. ${i.tamanho}` : ''}{i.cor ? ` · ${i.cor}` : ''}</div>
+                  <div style={{ color: 'var(--a-muted)', fontSize: 12 }}>{fmt(i.preco_unitario)} cada</div>
+                </div>
                 <span>{fmt(i.preco_unitario * i.quantidade)}</span>
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', fontWeight: 500, color: 'var(--a-text)' }}>
-              <span>Total</span><span>{fmt(items.reduce((s,i) => s + i.preco_unitario * i.quantidade, 0))}</span>
+              <span>Total</span><span>{fmt(orderDetail?.total || items.reduce((s,i) => s + i.preco_unitario * i.quantidade, 0))}</span>
             </div>
           </>
         )}

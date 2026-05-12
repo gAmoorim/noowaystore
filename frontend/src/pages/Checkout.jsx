@@ -25,20 +25,39 @@ export default function Checkout() {
     }).catch(() => setLoading(false))
   }, [])
 
+  const normalizeAddress = data => {
+    const address = data?.endereco || data
+    return Array.isArray(address) ? address[0] : address
+  }
+
   const handleSaveAddr = async () => {
     try {
       const r = await createEndereco(newAddr)
-      setSelAddr(r.id)
-      setAddresses(prev => [...prev, r])
+      const savedAddress = normalizeAddress(r)
+
+      if (!savedAddress?.id) {
+        toast('Endereço salvo, mas não foi possível selecioná-lo. Recarregue e tente novamente.', 'e')
+        return
+      }
+
+      setSelAddr(savedAddress.id)
+      setAddresses(prev => [...prev, savedAddress])
       setStep(2)
     } catch(e) { toast(e.message, 'e') }
   }
 
   const handleConfirm = async () => {
     try {
+      if (!selAddr) {
+        toast('Selecione um endereço de entrega', 'e')
+        setStep(1)
+        return
+      }
+
       const itens = cart.map(i => ({ estoque_id: i.estoqueId, quantidade: i.quantidade, preco_unitario: i.preco }))
       const r = await createPedido({ endereco_id: selAddr, itens })
-      setOrderId(r.id || r.pedido_id)
+      const pedido = r?.pedido || r
+      setOrderId(pedido?.id || r?.pedido_id)
       clearCart()
       setStep(3)
     } catch(e) { toast(e.message, 'e') }

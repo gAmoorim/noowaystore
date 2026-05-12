@@ -1,8 +1,8 @@
-const { queryInserirPedido, queryInserirItensPedido, queryAtualizarEstoque, queryListarPedidosUsuario, queryBuscarProdutoPorEstoqueId, queryAtualizarEstoquePeloid, queryListarTodosPedidos, queryBuscarPedidoPorId, queryAtualizarStatusPedido, queryListarItensPedido } = require("../database/querys/queryPedidos")
-const { queryBuscarProdutoPorId } = require("../database/querys/queryProdutos")
+const { queryInserirPedido, queryInserirItensPedido, queryListarPedidosUsuario, queryBuscarProdutoPorEstoqueId, queryAtualizarEstoquePeloid, queryListarTodosPedidos, queryBuscarPedidoPorId, queryAtualizarStatusPedido, queryBuscarPedidoDetalhadoPorId, queryListarItensPedido } = require("../database/querys/queryPedidos")
+const { queryVerificarEnderecoPertencente } = require("../database/querys/queryEnderecos")
 
 const controllerCriarPedido = async (req, res) => {
-    const { itens } = req.body 
+    const { endereco_id, itens } = req.body 
 
     const usuarioLogado = req.usuario
 
@@ -14,13 +14,22 @@ const controllerCriarPedido = async (req, res) => {
       return res.status(400).json({ mensagem: "Itens inválidos" });
     }
 
+    if (!endereco_id) {
+        return res.status(400).json({ mensagem: 'Selecione um endereço de entrega'})
+    }
+
     const itensValidados = []
     try {
+        const endereco = await queryVerificarEnderecoPertencente(usuarioLogado.id, endereco_id)
+
+        if (!endereco) {
+            return res.status(400).json({ mensagem: 'Endereço inválido para este usuário'})
+        }
 
         for (const item of itens) {
             const { estoque_id, quantidade } = item
 
-            if (!estoque_id || !quantidade || quantidade < 0) {
+            if (!estoque_id || !quantidade || quantidade <= 0) {
                 return res.status(400).json({ mensagem: 'Cada item deve ter estoque_id e quantidade válida'})
             }
 
@@ -34,14 +43,16 @@ const controllerCriarPedido = async (req, res) => {
                 return res.status(400).json({mensagem: 'Estoque insuficiente'})
             }
 
+            const precoFinal = produto.preco_promocional ?? produto.preco
+
             itensValidados.push({
                 estoque_id,
                 quantidade,
-                preco_unitario: produto.preco
+                preco_unitario: precoFinal
             })
         }
         
-        const pedido = await queryInserirPedido(usuarioLogado.id)
+        const pedido = await queryInserirPedido(usuarioLogado.id, endereco_id || null)
 
         const itensPedido = itensValidados.map(item => ({
             pedido_id: pedido.id,
@@ -122,9 +133,10 @@ const controllerAtualizarStatusPedido = async (req, res) => {
         const statusAtual = pedido.status
 
         const transicoes = {
-            pendente: ['enviado', 'cancelado'],
-            enviado: ['concluido'],
-            concluido: [],
+            pendente: ['aprovado', 'enviado', 'cancelado'],
+            aprovado: ['enviado', 'entregue', 'cancelado'],
+            enviado: ['entregue', 'cancelado'],
+            entregue: [],
             cancelado: []
         }
 
@@ -150,7 +162,7 @@ const controllerListarItensPedido = async (req, res) => {
     const usuarioLogado = req.usuario
 
     try {
-        const pedido = await queryBuscarPedidoPorId(pedidoId)
+        const pedido = await queryBuscarPedidoDetalhadoPorId(pedidoId)
 
         if (!pedido) {
             return res.status(404).json({ mensagem: 'Pedido não encontrado'})
@@ -170,6 +182,11 @@ const controllerListarItensPedido = async (req, res) => {
         ).toFixed(2)
 
         return res.status(200).json({
+            pedido: {
+                ...pedido,
+                total,
+                quantidade_itens: itens.length
+            },
             total,
             quantidade_itens: itens.length,
             itens
