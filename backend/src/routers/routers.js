@@ -16,42 +16,50 @@ const routers = express()
 
 routers.post('/login', controllerLoginUsuario)
 
+// USUARIOS
 routers.post('/usuarios', controllerCadastrarUsuario)
 routers.get('/usuarios', auth, controllerListarUsuarios)
 routers.get('/usuarios/:usuarioId', auth, controllerObterUsuario)
 routers.put('/usuarios', auth, controllerAtualizarUsuario)
 routers.delete('/usuarios/:usuarioId', auth, controllerDeletarUsuario)
 
+// CATEGORIAS
 routers.post('/categorias', auth, controllerCriarCategoria)
 routers.get('/categorias', controllerListarCategorias)
 routers.put('/categorias/:categoriaId', auth, controllerAtualizarCategoria)
 routers.delete('/categorias/:categoriaId', auth, controllerDeletarCategoria)
 
+// PRODUTOS
 routers.post('/produtos', auth, controllerCadastrarProduto)
 routers.get('/produtos', controllerListarProdutos)
 routers.get('/produtos/:produtoId', controllerObterProduto)
 routers.put('/produtos/:produtoId', auth, controllerAtualizarProduto)
 routers.delete('/produtos/:produtoId', auth, controllerDeletarProduto)
 
+// ESTOQUE
 routers.post('/estoque', auth, controllerCriarEstoque)
 routers.get('/estoque', controllerListarEstoque)
 routers.put('/estoque/:estoqueId', auth, controllerAtualizarEstoque)
 
+// PEDIDOS
 routers.post('/pedidos', auth, controllerCriarPedido)
 routers.get('/pedidos/minha-conta', auth, controllerListarPedidosUsuario)
 routers.get('/pedidos', auth, controllerListarTodosPedidos)
 routers.patch('/pedidos/:pedidoId/status', auth, controllerAtualizarStatusPedido)
 routers.get('/pedidos/:pedidoId/itens', auth, controllerListarItensPedido)
 
+// ENDERECOS
 routers.post('/enderecos', auth, controllerCadastrarEndereco)
 routers.get('/enderecos', auth, controllerListarEnderecos)
 routers.put('/enderecos/:enderecoId', auth, controllerAtualizarEndereco)
-routers.delete('/endereco/:enderecoId', auth, controllerDeletarEndereco)
+routers.delete('/enderecos/:enderecoId', auth, controllerDeletarEndereco)
 
+// IMAGENS
 routers.post('/produtos/:produtoId/imagens', auth, upload.single('imagem'), controllerAdicionarImagemProduto)
 routers.get('/produtos/:produtoId/imagens', controllerListarImagensProdutos)
 routers.delete('/produtos/imagens/:imagemId', auth, controllerDeletarImagemProduto)
 
+// PROMOCOES
 routers.post('/promocoes', auth, controllerCriarPromocao)
 routers.get('/promocoes', controllerListarPromocoes)
 routers.put('/promocoes/:promocaoId', auth, controllerAtualizarPromocao)

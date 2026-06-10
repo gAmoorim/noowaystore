@@ -104,70 +104,70 @@ const controllerObterUsuario = async (req, res) => {
 }
 
 const controllerAtualizarUsuario = async (req, res) => {
-    let { nome, email, senha, telefone } = req.body
+  const { nome, email, senha, telefone } = req.body
+  const usuarioId = req.usuario.id
 
-    if (!nome && !email && !senha && !telefone) {
-        return res.status(400).json({ error: 'Informe ao menos um campo para ser atualizado'})
+  if (!nome && !email && !senha && !telefone) {
+    return res.status(400).json({ error: 'Informe ao menos um campo para ser atualizado' })
+  }
+
+  if (!usuarioId) {
+    return res.status(400).json({ error: 'Não foi possível obter o id do usuário' })
+  }
+
+  try {
+    const atualizacao = {}
+
+    if (nome) {
+      atualizacao.nome = nome.toLowerCase()
     }
 
-    if (email && !validarEmail(email)) {
-        return res.status(400).json({ error: 'Formato de email inválido'})
+    if (email) {
+      if (!validarEmail(email)) {
+        return res.status(400).json({ error: 'Formato de email inválido' })
+      }
+
+      const emailExistente = await queryBuscarUsuarioPeloEmail(email.toLowerCase())
+
+      if (emailExistente && emailExistente.id !== usuarioId) {
+        return res.status(400).json({ error: 'O email já está em uso' })
+      }
+
+      atualizacao.email = email.toLowerCase().trim()
     }
 
-    const usuarioId = req.usuario.id
-
-    if (!usuarioId) {
-        return res.status(400).json({ error: 'Não foi possível obter o id do usuário'})
+    if (senha) {
+      if (senha.length < 6) {
+        return res.status(400).json({ error: 'A senha deve conter no mínimo 6 caracteres' })
+      }
+      atualizacao.senha_hash = await bcrypt.hash(senha, 10)
     }
 
-    try {
-        if (senha) {
-            if (senha.length < 6) {
-                return res.status(400).json({ error: 'A senha deve conter no mínimo 6 caracteres'})
-            }
-            senha = await bcrypt.hash(senha, 10)
-        }
+    if (telefone) {
+      if (!validarTelefone(telefone)) {
+        return res.status(400).json({ error: 'Formato do telefone inválido' })
+      }
 
-        if (email) {
-            const emailExistente = await queryBuscarUsuarioPeloEmail(email.toLowerCase())
+      const telefoneExistente = await queryVerificarTelefoneCadastrado(telefone)
 
-            if (emailExistente) {
-                return res.status(400).json({ error: 'O email já existe'})
-            }
-        }
+      if (telefoneExistente && telefoneExistente.id !== usuarioId) {
+        return res.status(400).json({ error: 'Telefone já cadastrado' })
+      }
 
-        if (telefone) {
-            if (!validarTelefone(telefone)) {
-                return res.status(400).json({ error: 'Formato do telefone inválido' })
-            }
-
-            const telefoneInformado = await queryVerificarTelefoneCadastrado(telefone)
-
-            if (telefoneInformado) {
-                return res.status(400).json({ error: 'Telefone já cadastrado' })
-            }
-        }
-
-        await queryAtualizarUsuario(
-            nome.toLowerCase(),
-            email.toLowerCase(),
-            senha,
-            telefone,
-            usuarioId
-        )
-
-        const usuarioAtualizado = {
-            nome,
-            email,
-            telefone
-        }
-        
-        return res.status(200).json({ mensagem: 'Usuário atualizado', usuarioAtualizado})
-    } catch (error) {
-        console.error('Ocorreu um erro ao atualizar o usuario', error)
-        return res.status(500).json({ error: `ocorreu um erro ao atualizar o usuário ${error.message}`})
+      atualizacao.telefone = telefone
     }
 
+    await queryAtualizarUsuario(usuarioId, atualizacao)
+
+    return res.status(200).json({
+      mensagem: 'Usuário atualizado',
+      usuarioAtualizado: { nome, email, telefone }
+    })
+    
+  } catch (error) {
+    console.error('Ocorreu um erro ao atualizar o usuário', error)
+    return res.status(500).json({ error: `Ocorreu um erro ao atualizar o usuário: ${error.message}` })
+  }
 }
 
 const controllerDeletarUsuario = async (req, res) => {

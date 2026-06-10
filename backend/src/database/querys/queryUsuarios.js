@@ -38,11 +38,10 @@ const queryVerificarTelefoneCadastrado = async (telefone) => {
     .first()
 }
 
-const queryAtualizarUsuario = async (nome, email, senha, telefone, usuarioId) => {
-    return await knex('usuarios')
-    .where({id: usuarioId})
-    .update({ nome, email, senha_hash: senha, telefone})
-    .select('nome', 'email', 'telefone')
+const queryAtualizarUsuario = async (usuarioId, campos) => {
+  return await knex('usuarios')
+    .where({ id: usuarioId })
+    .update(campos)
 }
 
 const queryDeletarUsuario = async (usuarioId) => {

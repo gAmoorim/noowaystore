@@ -53,15 +53,26 @@ function Perfil({ user, setAuth, token, toast }) {
   const [form, setForm] = useState({ nome: user?.nome || '', email: user?.email || '', telefone: user?.telefone || '', senha: '' })
   const set = k => e => setForm(prev => ({ ...prev, [k]: e.target.value }))
 
-  const save = async () => {
-    const body = { nome: form.nome, email: form.email, telefone: form.telefone }
-    if (form.senha) body.senha = form.senha
-    try {
-      await updateUser(body)
-      setAuth(token, { ...user, ...body })
-      toast('Perfil atualizado!', 's')
-    } catch(e) { toast(e.message, 'e') }
+const save = async () => {
+  const body = {}
+
+  // Só inclui se o valor mudou em relação ao atual
+  if (form.nome && form.nome !== user.nome) body.nome = form.nome
+  if (form.email && form.email !== user.email) body.email = form.email
+  if (form.telefone !== user.telefone) body.telefone = form.telefone
+  if (form.senha) body.senha = form.senha
+
+  if (!Object.keys(body).length) {
+    toast('Nenhuma alteração detectada', 'i')
+    return
   }
+
+  try {
+    await updateUser(body)
+    setAuth(token, { ...user, ...body })
+    toast('Perfil atualizado!', 's')
+  } catch(e) { toast(e.message, 'e') }
+}
 
   return (
     <div>
